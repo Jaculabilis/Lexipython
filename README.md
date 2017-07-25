@@ -47,21 +47,27 @@ Lexipython **does not** provide:
 
    1. On the final turn, you must cite _at least three_ written articles.
    
-   1. You may not cite entries that you wrote. You may cite phantoms you have cited before.
+   1. You may not cite an entry you wrote. You may cite phantoms you have cited before.
    
-   1. If you cite a phantom, you may not choose to write it if you write an article for that index.
+   1. Once you cite a phantom, you cannot choose to write it if you write an article for that index later.
 
 **Ersatz Scrivener.** In the course of the game, it may come to pass that a scholar is assigned an index in which no slots are available, because this scholar has already cited all the phantoms in previous articles. When this happens, the player instead writes their article as Ersatz Scrivener, radical skeptic. Ersatz does not believe in the existence of whatever he is writing about, no matter how obvious it seems to others or how central it is in the developing history of the world. All references, testimony, etc. with regard to its existence are tragic delusion at best or malicious lies at worst. Unlike the other scholars, Ersatz does not treat the research of his peers as fact, because he does not believe he has peers. Players writing articles as Ersatz are encouraged to name and shame the work of the misguided amateurs collaborating with him.
 
-## Running Lexicon (WIP)
+## Running Lexicon
 
-**Setting up the game.** Index assignments. Topic statement.
+**Topic statement.** The GM should pick an appropriate topic statement for the Lexicon. This topic should be vague, but give the players something to start with, such as "You are all revisionist scholars from the Paleotechnic Era arguing about how the Void Ghost Rebellion led to the overthrow of the cyber-gnostic theocracy and the establishment of the Third Republic" or "In the wake of the Quartile Reformation, you are scholars investigating the influence of Remigrationism on the Disquietists". What happened to the first two Republics or what Remigrationism is are unknown at the beginning; they are named to evoke a mood and inspire creativity.
 
-**Running the game.** Scheduling.
+**Indices and turns.** Each turn, the GM will assign each player to write in a certain index. An index is a subset of however entries are sorted. By default, index by letter or by a group of letters. The GM should decide how many turns the game will last and divide up the entry space into that many indices. Each player will take one turn in each index. The suggested index count is 8, dividing the alphabet into the indices ABC, DEF, GHI, JKL, MNO, PQRS, TUV, WXYZ.
 
-**Variations on the rules.** Index variants. Follow the phantoms. Swapping indices.
+The GM should also decide how long players will have to write their article for each turn. At one turn per day, it will take about a week to finish an 8-turn game. Avoid letting too long go between turns, or players may forget what was going on in the Lexicon.
 
-**Additional responsibilities.** Hosting. Consistency checks.
+Unless the players have a method of coordinating who is writing what article, it may be useful to always assign players to different indices. The easiest way to do this is to initially distribute players randomly across all indices and have them move through the index list in order, wrapping around to the top from the bottom.
+
+**Varying the rules.** The GM is free to alter the game procedures in service of the goal of the game. By default, articles are indexed alphabetically into 8 indices. A longer game might split the alphabet into 13 pairs. An alternative indexing might index by date over a historical period or some other quality. By default, players move through the index list in order. An alternative might assign the order of indices randomly. In a variation called _Follow the Phantoms_, players can choose what index they write in, but they must always write a phantom article after the first turn. In some circumstances, two players may both have to write an Ersatz article but could write an article in the other's index. The GM might swap the index assignments of such players.
+
+**Additional responsibilities.** Lexipython will generate browsable static HTML files. The GM is responsible for making these generated pages available to the players by hosting or otherwise making the pages available after each round's articles have been turned in and generated. The GM is also responsible for reviewing each round's articles and ensuring that the submitted articles do not contradict each other or the previously written articles.
+
+## Using Lexipython (WIP)
 
 ## Acknowledgements
 
