@@ -1,2 +1,70 @@
 # Lexipython
-A Python suite for playing the Lexicon RPG
+
+Lexipython is a Python suite for playing Lexicon, a collaborative, worldbuilding, role-playing game.
+
+## Summary
+
+Lexicon is basically _Wikipedia: The RPG_. Each player takes on the role of a scholar. You are cranky, opinionated, prejudiced, and eccentric. You are also collaborating with a number of your peers -- the other players -- on the construction of an encyclopedia describing some bounded space, such as a fantastic world or a historical period. Each round, each scholar contributes an article on a particular topic, citing other articles in the burgeoning encyclopedia. Some of the cited articles won't exist at the time they're cited. As the game progresses, the other scholars will fill in the phantom citations you've made, and you will fill in theirs -- after all, it is an academic sin to cite yourself. Each new article, however, cannot contradict what has already been written: though your peers are self-important, narrow-minded dunderheads, they are honest scholars. No matter how strained their interpretations are, their facts are as accurate as historical research can make them.
+
+## Lexicon and Lexipython
+
+To play Lexicon, all you really need is something for the scholars to write their articles on and a place to collect them. However, if people with doctorates are known for anything, it's their terrible handwriting and disorganization. Lexipython therefore provides tools to solve these most ancient of problems. To play Lexicon with Lexipython, appoint a player or a third party as the game master (GM). The GM will need to download Lexipython, set up the game, and handle posting the pages somewhere all the players can access them.
+
+To aid the GM in running the Lexicon game, Lexipython **does** provide:
+* Specialized markdown parsing into formatted lexicon entries
+* Page generation and interlinking
+* Handy help pages for rules, session information, statistics, and more.
+
+Lexipython **does not** provide:
+* Web hosting for the Lexicon pages
+* Checks for factual consistency between submitted articles
+
+## Playing Lexicon
+
+1. At the beginning of the game, you will be provided with a _topic statement_ that sets the tone for the game. Use it for inspiration and a stepping-stone into shaping the world of the Lexicon.
+
+1. Each round, you will be assigned an _index_, a grouping of letters. Your entry must alphabetize under that index.
+
+   1. Each index has a number of open slots equal to the number of players, which are taken up by article titles when an article is written in that index or a citation is made to an unwritten article, or _phantom_. If there are no open slots in your index, you must write the article for a phantom in that index.
+   
+   1. "The" and "A" aren't counted in indexing.
+
+1. Once you've picked an article title, write your article on that subject.
+
+   1. There are no hard and fast rules about style. Try to sound like an encyclopedia entry or the overview section at the top of a wiki article.
+   
+   1. You must respect and not contradict any factual content of any posted articles. You may introduce new facts that place things in a new light, provide alternative interpretations, or flesh out unexplained details in unexpected ways; but you must not _contradict_ what has been previously established as fact.
+   
+   1. Aim for around 200-300 words.
+
+1. Your article must cite other articles in the Lexicon. Sometimes these citations will be to phantoms, articles that have not been written yet.
+
+   1. On the first turn, your article must cite _exactly two_ phantom articles.
+   
+   1. On subsequent turns, your article must cite _exactly two_ phantom articles, either already-cited phantoms or new ones. Your article must also cite _at least one_ written article.
+   
+   1. On the penultimate turn, you must cite _exactly one_ phantom article and _at least two_ written articles.
+
+   1. On the final turn, you must cite _at least three_ written articles.
+   
+   1. You may not cite entries that you wrote. You may cite phantoms you have cited before.
+   
+   1. If you cite a phantom, you may not choose to write it if you write an article for that index.
+
+**Ersatz Scrivener.** In the course of the game, it may come to pass that a scholar is assigned an index in which no slots are available, because this scholar has already cited all the phantoms in previous articles. When this happens, the player instead writes their article as Ersatz Scrivener, radical skeptic. Ersatz does not believe in the existence of whatever he is writing about, no matter how obvious it seems to others or how central it is in the developing history of the world. All references, testimony, etc. with regard to its existence are tragic delusion at best or malicious lies at worst. Unlike the other scholars, Ersatz does not treat the research of his peers as fact, because he does not believe he has peers. Players writing articles as Ersatz are encouraged to name and shame the work of the misguided amateurs collaborating with him.
+
+## Running Lexicon (WIP)
+
+**Setting up the game.** Index assignments. Topic statement.
+
+**Running the game.** Scheduling.
+
+**Variations on the rules.** Index variants. Follow the phantoms. Swapping indices.
+
+**Additional responsibilities.** Hosting. Consistency checks.
+
+## Acknowledgements
+
+The first version of Lexicon was posted by Neel Krishnaswami on The 20' by 20' Room in 2003. It was inspired by, and named in honor of, Milorad Pavic's _Dictionary of the Khazars: A Lexicon Novel_. The rules were later given some minor clarifications and expansion by Alexander Cherry and posted on Twisted Confessions in 2010. The rules described here were adapted mostly from the 2010 version and revised by Tim Van Baak in 2017.
+
+Special thanks to the scholars of Lexicon Alpha and Lexicon Proximum for their contributions and feedback.
