@@ -26,29 +26,29 @@ Lexipython **does not** provide:
 1. Each round, you will be assigned an _index_, a grouping of letters. Your entry must alphabetize under that index.
 
    1. Each index has a number of open slots equal to the number of players, which are taken up by article titles when an article is written in that index or a citation is made to an unwritten article, or _phantom_. If there are no open slots in your index, you must write the article for a phantom in that index.
-   
+
    1. "The" and "A" aren't counted in indexing.
 
 1. Once you've picked an article title, write your article on that subject.
 
    1. There are no hard and fast rules about style. Try to sound like an encyclopedia entry or the overview section at the top of a wiki article.
-   
-   1. You must respect and not contradict any factual content of any posted articles. You may introduce new facts that place things in a new light, provide alternative interpretations, or flesh out unexplained details in unexpected ways; but you must not _contradict_ what has been previously established as fact.
-   
+
    1. Aim for around 200-300 words.
+
+   1. You must respect and not contradict any factual content of any posted articles. You may introduce new facts that place things in a new light, provide alternative interpretations, or flesh out unexplained details in unexpected ways; but you must not _contradict_ what has been previously established as fact. Use the "Yes, And" rule from improv: accept what your fellow scholars write and add to it, rather than trying to work around them.
 
 1. Your article must cite other articles in the Lexicon. Sometimes these citations will be to phantoms, articles that have not been written yet.
 
    1. On the first turn, your article must cite _exactly two_ phantom articles.
-   
+
    1. On subsequent turns, your article must cite _exactly two_ phantom articles, either already-cited phantoms or new ones. Your article must also cite _at least one_ written article.
-   
+
    1. On the penultimate turn, you must cite _exactly one_ phantom article and _at least two_ written articles.
 
    1. On the final turn, you must cite _at least three_ written articles.
-   
+
    1. You may not cite an entry you wrote. You may cite phantoms you have cited before.
-   
+
    1. Once you cite a phantom, you cannot choose to write it if you write an article for that index later.
 
 **Ersatz Scrivener.** In the course of the game, it may come to pass that a scholar is assigned an index in which no slots are available, because this scholar has already cited all the phantoms in previous articles. When this happens, the player instead writes their article as Ersatz Scrivener, radical skeptic. Ersatz does not believe in the existence of whatever he is writing about, no matter how obvious it seems to others or how central it is in the developing history of the world. All references, testimony, etc. with regard to its existence are tragic delusion at best or malicious lies at worst. Unlike the other scholars, Ersatz does not treat the research of his peers as fact, because he does not believe he has peers. Players writing articles as Ersatz are encouraged to name and shame the work of the misguided amateurs collaborating with him.
