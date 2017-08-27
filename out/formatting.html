@@ -1,0 +1,52 @@
+<html>
+<head>
+<title>Formatting | Lexicon Title</title>
+<style>
+body { background-color: #eeeeee; margin: 10px; }
+div#header { background-color: #ffffff; margin: 10px 0; padding: 8px; box-shadow: 2px 2px 10px #888888; }
+div.header-option { display:inline-block; margin-right: 20px; }
+div#sidebar-outer { width: 140px; background-color: #ffffff; float:left; box-shadow: 2px 2px 10px #888888; padding: 5px; }
+div#sidebar-inner { padding: 5px; }
+img#logo { width: 140px; }
+div.content { margin-left: 160px; margin-top: 10px; background-color: #ffffff; padding: 10px; box-shadow: 2px 2px 10px #888888; }
+a.phantom { color: #cc2200; }
+div.citeblock a.phantom { font-style: italic; }
+span.signature { text-align: right; }
+</style>
+</head>
+<body>
+<div id="header">
+<div class="header-option"><h2 style="margin:0px;">Lexicon Title</h2></div>
+<div class="header-option"><a href="./rules.html">Rules</a></div>
+<div class="header-option"><a href="./formatting.html">Formatting</a></div>
+<div class="header-option"><a href="./index.html">Index</a></div>
+<div class="header-option"><a href="./session.html">Session</a></div>
+<div class="header-option"><a href="./stats.html">Statistics</a></div>
+</div>
+<div id="sidebar-outer">
+<img id="logo" src="logo.png">
+<div id="sidebar-inner">
+<p><i>Sidebar content</i></p>
+</div>
+</div>
+<div class="content">
+<h1>Formatting</h1>
+<p>Lexipython provides support for a limited amount of Markdown-esque formatting. The parsing rules that will be applied are as follows:</p>
+<p>Entries must begin with a header declaring the entry title. Format this header as "# Title", e.g. "# Formatting". This is the name that citations to your entry will use.</p>
+<p>Two line breaks begin a new paragraph. Lines separated by a single line break will be part of the same paragraph, unless the line is ended by a double backslash:<br>
+&nbsp;&nbsp;Sample \\<br>
+&nbsp;&nbsp;text <br>
+&nbsp;&nbsp;here <br>
+in your markdown produces<br>
+&nbsp;&nbsp;Sample <br>
+&nbsp;&nbsp;text
+here <br>
+in the generated page.</p>
+<p>Text bounded by ** will be bolded: **bold** produces <b>bold</b>. Text bounded by // will be italicized: //italics// produces <i>italics</i>.</p>
+<p>To cite another Lexicon entry, use double brackets. Text in double brackets will cite and link to the entry of the same name: [[Example page]] produces <a href="Example_page.html" class="phantom">Example page</a>. Text in double brackets split with a | will alias the link as the left text and link to the entry with the name of the right text: [[this text|Example page]] produces <a href="Example_page.html" class="phantom">this text</a>. <b>You must be precise in the entry title you cite to.</b> Citations to "Example" vs. "The Example" will point to different entries and create different phantoms, and your GM will probably have to clean up after you.
+<p>Entries should end with a footer signing the entry with its author. Format this footer as "~ Signature". Signature lines will be set apart by a horizotal rule and right-aligned:</p>
+
+<span class="signature"><p> Signature</p></span>
+</div>
+</body>
+</html>
