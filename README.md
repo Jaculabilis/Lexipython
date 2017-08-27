@@ -67,7 +67,19 @@ Unless the players have a method of coordinating who is writing what article, it
 
 **Additional responsibilities.** Lexipython will generate browsable static HTML files. The GM is responsible for making these generated pages available to the players by hosting or otherwise making the pages available after each round's articles have been turned in and generated. The GM is also responsible for reviewing each round's articles and ensuring that the submitted articles do not contradict each other or the previously written articles.
 
-## Using Lexipython (WIP)
+## Using Lexipython
+
+To run a game of Lexicon with Lexipython, clone this repository out to a new folder:
+```
+$ git clone https://github.com/Jaculabilis/Lexipython.git [name]
+```
+Steps for setup:
+1. Add a sidebar image to the `out/` directory.
+2. Edit `lexicon.cfg` and fill in the Lexicon game information.
+3. Build the lexicon.
+4. When the first turn's articles come in, delete the example page.
+
+For build commands, run `$ python lexipython.py` to see the available commands.
 
 ## Acknowledgements
 
