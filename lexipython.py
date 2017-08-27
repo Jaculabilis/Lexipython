@@ -279,13 +279,12 @@ def build_phantom_page(title, cite_map, config):
 		"<div class=\"content citeblock\">\n"\
 		"<p>Cited by: {citedby}</p>\n"\
 		"</div>\n".format(
-			cites=cites_str,
 			citedby=citedby_str)
 	# Fill in the entry skeleton
 	entry_skeleton = load_resource("entry-page.html")
 	css = load_resource("lexicon.css")
 	return entry_skeleton.format(
-		title=lex["title"],
+		title=title,
 		lexicon=config["LEXICON_TITLE"],
 		css=css,
 		logo=config["LOGO_FILENAME"],
@@ -306,20 +305,21 @@ def build_stub_page(title, cite_map, config):
 	content = "<p>[The handwriting is completely illegible.]</p>\n"\
 		"<hr><span class=\"signature\"><p>Ersatz Scrivener</p></span>\n"
 	# Build the stub citeblock
-	cites, citedby = citation_lists(title, cite_map)
+	citedby = [citer_title
+		for citer_title, cited_titles in cite_map.items()
+		if title in cited_titles]
 	citedby_str = " | ".join([lf(None, title, title) for title in citedby])
 	citeblock = ""\
 		"<div class=\"content citeblock\">\n"\
 		"<p>Citations: [Illegible]</p>\n"\
 		"<p>Cited by: {citedby}</p>\n"\
 		"</div>\n".format(
-			cites=cites_str,
 			citedby=citedby_str)
 	# Fill in the entry skeleton
 	entry_skeleton = load_resource("entry-page.html")
 	css = load_resource("lexicon.css")
 	return entry_skeleton.format(
-		title=lex["title"],
+		title=title,
 		lexicon=config["LEXICON_TITLE"],
 		css=css,
 		logo=config["LOGO_FILENAME"],
@@ -510,7 +510,6 @@ def command_build(argv):
 	print "Clearing old HTML files"
 	for filename in os.listdir("out/"):
 		if filename[-5:] == ".html":
-			print filename
 			os.remove("out/" + filename)
 	# Write the written entries
 	print "Writing written articles..."
