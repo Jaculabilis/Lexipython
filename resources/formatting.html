@@ -1,0 +1,16 @@
+<p>Lexipython provides support for a limited amount of Markdown-esque formatting. The parsing rules that will be applied are as follows:</p>
+<p>Entries must begin with a header declaring the entry title. Format this header as "# Title", e.g. "# Formatting". This is the name that citations to your entry will use.</p>
+<p>Two line breaks begin a new paragraph. Lines separated by a single line break will be part of the same paragraph, unless the line is ended by a double backslash:<br>
+&nbsp;&nbsp;Sample \\<br>
+&nbsp;&nbsp;text <br>
+&nbsp;&nbsp;here <br>
+in your markdown produces<br>
+&nbsp;&nbsp;Sample <br>
+&nbsp;&nbsp;text
+here <br>
+in the generated page.</p>
+<p>Text bounded by ** will be bolded: **bold** produces <b>bold</b>. Text bounded by // will be italicized: //italics// produces <i>italics</i>.</p>
+<p>To cite another Lexicon entry, use double brackets. Text in double brackets will cite and link to the entry of the same name: [[Example page]] produces <a href="Example_page.html" class="phantom">Example page</a>. Text in double brackets split with a | will alias the link as the left text and link to the entry with the name of the right text: [[this text|Example page]] produces <a href="Example_page.html" class="phantom">this text</a>. <b>You must be precise in the entry title you cite to.</b> Citations to "Example" vs. "The Example" will point to different entries and create different phantoms, and your GM will probably have to clean up after you.
+<p>Entries should end with a footer signing the entry with its author. Format this footer as "~ Signature". Signature lines will be set apart by a horizotal rule and right-aligned:</p>
+
+<span class="signature"><p> Signature</p></span>
