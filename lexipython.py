@@ -31,10 +31,6 @@ def titlestrip(s):
 	if s.startswith("A "): return s[2:]
 	return s
 
-def cmp_title(x, y):
-	"""Compares strings in titular order, ignoring prefixed articles."""
-	return cmp(titlestrip(x), titlestrip(y))
-
 def link_formatter(written_articles):
 	"""
 	Creates a lambda that formats citation links and handles the phantom class.
@@ -137,19 +133,19 @@ def parse_lex_from_directory(directory):
 	Output: a list of parsed lex file structures
 	"""
 	lexes = []
-	print "Reading lex files from", directory
+	print("Reading lex files from", directory)
 	for filename in os.listdir(directory):
 		path = directory + filename
 		# Read only .lex files
 		if path[-4:] == ".lex":
-			print "    Parsing", path,
+			print("    Parsing", path, end=" ")
 			with open(path) as lex_file:
 				lex_raw = lex_file.read()
 				parsed_lex = parse_lex(lex_raw)
 				if "error" in parsed_lex:
-					print "ERROR:", parsed_lex["error"]
+					print("ERROR:", parsed_lex["error"])
 				else:
-					print "SUCCESS:", parsed_lex["title"]
+					print("SUCCESS:", parsed_lex["title"])
 					lexes.append(parsed_lex)
 	return lexes
 
@@ -197,7 +193,7 @@ def make_cite_map(lex_list):
 	cite_map = {}
 	for lex in lex_list:
 		cited_titles = [cite_tuple[1] for format_id, cite_tuple in lex["citations"].items()]
-		cite_map[lex["title"]] = sorted(set(cited_titles), cmp=cmp_title)
+		cite_map[lex["title"]] = sorted(set(cited_titles), key=titlestrip)
 	return cite_map
 
 def format_content(lex, format_func):
@@ -225,7 +221,7 @@ def citation_lists(title, cite_map):
 	citers = [citer_title
 		for citer_title, cited_titles in cite_map.items()
 		if title in cited_titles]
-	return cite_map[title], citers
+	return cite_map[title] if title in cite_map else [], citers
 
 def build_article_page(lex, cite_map, config):
 	"""
@@ -241,7 +237,9 @@ def build_article_page(lex, cite_map, config):
 	# Build the article citeblock
 	cites, citedby = citation_lists(lex["title"], cite_map)
 	cites_str = " | ".join([lf(None, title, title) for title in cites])
+	if len(cites_str) < 1: cites_str = "--"
 	citedby_str = " | ".join([lf(None, title, title) for title in citedby])
+	if len(citedby_str) < 1: citedby_str = "--"
 	citeblock = ""\
 		"<div class=\"content citeblock\">\n"\
 		"<p>Citations: {cites}</p>\n"\
@@ -335,10 +333,8 @@ def build_index_page(cite_map, config):
 	Output:	the HTML of the index page
 	"""
 	# Count up all the titles
-	titles = sorted(
-		(set(cite_map.keys()) |
-		set([title for cited_titles in cite_map.values() for title in cited_titles]))
-		, cmp=cmp_title)
+	titles = set(cite_map.keys()) | set([title for cited_titles in cite_map.values() for title in cited_titles])
+	titles = sorted(set(titles), key=titlestrip)
 	content = ""
 	if len(titles) == len(cite_map.keys()):
 		content = "<p>There are <b>{0}</b> entries in this lexicon.</p>\n<ul>\n".format(len(titles))
@@ -496,7 +492,7 @@ def build_statistics_page(cite_map, config):
 
 def command_build(argv):
 	if len(argv) >= 3 and (argv[2] != "partial" and argv[2] != "full"):
-		print "unknown build type: " + argv[2]
+		print("unknown build type: " + argv[2])
 		return
 	# Set up the entries
 	config = load_config()
@@ -507,68 +503,68 @@ def command_build(argv):
 	written_entries = cite_map.keys()
 	phantom_entries = set([title for cites in cite_map.values() for title in cites if title not in written_entries])
 	# Clear the folder
-	print "Clearing old HTML files"
+	print("Clearing old HTML files")
 	for filename in os.listdir("out/"):
 		if filename[-5:] == ".html":
 			os.remove("out/" + filename)
 	# Write the written entries
-	print "Writing written articles..."
+	print("Writing written articles...")
 	for lex in lexes:
 		page = build_article_page(lex, cite_map, config)
 		with open("out/" + lex["filename"] + ".html", "w") as f:
 			f.write(page)
-		print "    Wrote " + lex["title"]
+		print("    Wrote " + lex["title"])
 	# Write the unwritten entries
 	if len(phantom_entries) > 0:
 		if len(argv) < 3 or argv[2] == "partial":
-			print "Writing phantom articles..."
+			print("Writing phantom articles...")
 			for title in phantom_entries:
 				page = build_phantom_page(title, cite_map, config)
 				with open("out/" + as_filename(title) + ".html", "w") as f:
 					f.write(page)
-				print "    Wrote " + title
+				print("    Wrote " + title)
 		elif argv[2] == "full":
-			print "Writing stub articles..."
+			print("Writing stub articles...")
 			for title in phantom_entries:
 				page = build_stub_page(title, cite_map, config)
 				with open("out/" + as_filename(title) + ".html", "w") as f:
 					f.write(page)
-				print "    Wrote " + title
+				print("    Wrote " + title)
 		else:
-			print "ERROR: build type was " + argv[2]
+			print("ERROR: build type was " + argv[2])
 			return
 	# Write the default pages
-	print "Writing default pages"
+	print("Writing default pages")
 	page = build_rules_page(config)
 	with open("out/rules.html", "w") as f:
 		f.write(page)
-	print "    Wrote Rules"
+	print("    Wrote Rules")
 	page = build_formatting_page(config)
 	with open("out/formatting.html", "w") as f:
 		f.write(page)
-	print "    Wrote Formatting"
+	print("    Wrote Formatting")
 	page = build_index_page(cite_map, config)
 	with open("out/index.html", "w") as f:
 		f.write(page)
-	print "    Wrote Index"
+	print("    Wrote Index")
 	page = build_session_page(config)
 	with open("out/session.html", "w") as f:
 		f.write(page)
-	print "    Wrote Session"
+	print("    Wrote Session")
 	page = build_statistics_page(cite_map, config)
 	with open("out/stats.html", "w") as f:
 		f.write(page)
-	print "    Wrote Statistics"
+	print("    Wrote Statistics")
 
 def main():
 	if len(sys.argv) < 2:
-		print "Available commands:"
-		print " - build [partial] : Build the lexicon and generate phantom stubs for all unwritten articles."
-		print " - build full      : Build the lexicon and generate Ersatz pages for all unwritten articles."
+		print("Available commands:")
+		print(" - build [partial] : Build the lexicon and generate phantom stubs for all unwritten articles.")
+		print(" - build full      : Build the lexicon and generate Ersatz pages for all unwritten articles.")
 	elif sys.argv[1] == "build":
 		command_build(sys.argv)
 	else:
-		print "Unknown command: " + sys.argv[1]
+		print("Unknown command: " + sys.argv[1])
 
 if __name__ == "__main__":
 	main()
