@@ -5,6 +5,7 @@
 import sys		# For argv and stderr
 import os		# For reading directories
 import re		# For parsing lex content
+import io		# For writing pages out as UTF-8
 import networkx # For pagerank analytics
 from collections import defaultdict # For rank inversion in statistics
 
@@ -511,7 +512,7 @@ def command_build(argv):
 	print("Writing written articles...")
 	for lex in lexes:
 		page = build_article_page(lex, cite_map, config)
-		with open("out/" + lex["filename"] + ".html", "w") as f:
+		with io.open("out/" + lex["filename"] + ".html", "w", encoding="utf8") as f:
 			f.write(page)
 		print("    Wrote " + lex["title"])
 	# Write the unwritten entries
@@ -520,14 +521,14 @@ def command_build(argv):
 			print("Writing phantom articles...")
 			for title in phantom_entries:
 				page = build_phantom_page(title, cite_map, config)
-				with open("out/" + as_filename(title) + ".html", "w") as f:
+				with io.open("out/" + as_filename(title) + ".html", "w") as f:
 					f.write(page)
 				print("    Wrote " + title)
 		elif argv[2] == "full":
 			print("Writing stub articles...")
 			for title in phantom_entries:
 				page = build_stub_page(title, cite_map, config)
-				with open("out/" + as_filename(title) + ".html", "w") as f:
+				with io.open("out/" + as_filename(title) + ".html", "w") as f:
 					f.write(page)
 				print("    Wrote " + title)
 		else:
@@ -536,23 +537,23 @@ def command_build(argv):
 	# Write the default pages
 	print("Writing default pages")
 	page = build_rules_page(config)
-	with open("out/rules.html", "w") as f:
+	with io.open("out/rules.html", "w") as f:
 		f.write(page)
 	print("    Wrote Rules")
 	page = build_formatting_page(config)
-	with open("out/formatting.html", "w") as f:
+	with io.open("out/formatting.html", "w") as f:
 		f.write(page)
 	print("    Wrote Formatting")
 	page = build_index_page(cite_map, config)
-	with open("out/index.html", "w") as f:
+	with io.open("out/index.html", "w") as f:
 		f.write(page)
 	print("    Wrote Index")
 	page = build_session_page(config)
-	with open("out/session.html", "w") as f:
+	with io.open("out/session.html", "w") as f:
 		f.write(page)
 	print("    Wrote Session")
 	page = build_statistics_page(cite_map, config)
-	with open("out/stats.html", "w") as f:
+	with io.open("out/stats.html", "w") as f:
 		f.write(page)
 	print("    Wrote Statistics")
 
