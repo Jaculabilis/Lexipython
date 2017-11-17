@@ -139,25 +139,25 @@ def parse_lex_from_directory(directory):
 		path = directory + filename
 		# Read only .lex files
 		if path[-4:] == ".lex":
-			print("    Parsing", path, end=" ")
-			with open(path) as lex_file:
+			print("    Parsing", path)
+			with open(path, "r", encoding="utf8") as lex_file:
 				lex_raw = lex_file.read()
 				parsed_lex = parse_lex(lex_raw)
 				if "error" in parsed_lex:
-					print("ERROR:", parsed_lex["error"])
+					print("        ERROR:", parsed_lex["error"])
 				else:
-					print("SUCCESS:", parsed_lex["title"])
+					print("        success:", parsed_lex["title"])
 					lexes.append(parsed_lex)
 	return lexes
 
 def load_resource(filename, cache={}):
 	if filename not in cache:
-		cache[filename] = open("resources/" + filename).read()
+		cache[filename] = open("resources/" + filename, "r", encoding="utf8").read()
 	return cache[filename]
 
 def load_config():
 	config = {}
-	with open("lexicon.cfg") as f:
+	with open("lexicon.cfg", "r", encoding="utf8") as f:
 		line = f.readline()
 		while line:
 			# Skim lines until a value definition begins
@@ -512,7 +512,7 @@ def command_build(argv):
 	print("Writing written articles...")
 	for lex in lexes:
 		page = build_article_page(lex, cite_map, config)
-		with io.open("out/" + lex["filename"] + ".html", "w", encoding="utf8") as f:
+		with open("out/" + lex["filename"] + ".html", "w", encoding="utf8") as f:
 			f.write(page)
 		print("    Wrote " + lex["title"])
 	# Write the unwritten entries
@@ -521,14 +521,14 @@ def command_build(argv):
 			print("Writing phantom articles...")
 			for title in phantom_entries:
 				page = build_phantom_page(title, cite_map, config)
-				with io.open("out/" + as_filename(title) + ".html", "w") as f:
+				with open("out/" + as_filename(title) + ".html", "w", encoding="utf8") as f:
 					f.write(page)
 				print("    Wrote " + title)
 		elif argv[2] == "full":
 			print("Writing stub articles...")
 			for title in phantom_entries:
 				page = build_stub_page(title, cite_map, config)
-				with io.open("out/" + as_filename(title) + ".html", "w") as f:
+				with open("out/" + as_filename(title) + ".html", "w", encoding="utf8") as f:
 					f.write(page)
 				print("    Wrote " + title)
 		else:
@@ -537,23 +537,23 @@ def command_build(argv):
 	# Write the default pages
 	print("Writing default pages")
 	page = build_rules_page(config)
-	with io.open("out/rules.html", "w") as f:
+	with open("out/rules.html", "w", encoding="utf8") as f:
 		f.write(page)
 	print("    Wrote Rules")
 	page = build_formatting_page(config)
-	with io.open("out/formatting.html", "w") as f:
+	with open("out/formatting.html", "w", encoding="utf8") as f:
 		f.write(page)
 	print("    Wrote Formatting")
 	page = build_index_page(cite_map, config)
-	with io.open("out/index.html", "w") as f:
+	with open("out/index.html", "w", encoding="utf8") as f:
 		f.write(page)
 	print("    Wrote Index")
 	page = build_session_page(config)
-	with io.open("out/session.html", "w") as f:
+	with open("out/session.html", "w", encoding="utf8") as f:
 		f.write(page)
 	print("    Wrote Session")
 	page = build_statistics_page(cite_map, config)
-	with io.open("out/stats.html", "w") as f:
+	with open("out/stats.html", "w", encoding="utf8") as f:
 		f.write(page)
 	print("    Wrote Statistics")
 
