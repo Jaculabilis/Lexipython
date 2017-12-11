@@ -272,7 +272,7 @@ def build_contents_page(articles, config):
 	# Article counts
 	phantom_count = len([article for article in articles if article.author is None])
 	if phantom_count == 0:
-		content = "<p>There are <b>{0}</b> entries in this lexicon.</p>\n<ul>\n".format(len(articles))
+		content = "<p>There are <b>{0}</b> entries in this lexicon.</p>\n".format(len(articles))
 	else:
 		content = "<p>There are <b>{0}</b> entries, <b>{1}</b> written and <b>{2}</b> phantom.</p>\n".format(
 			len(articles), len(articles) - phantom_count, phantom_count)
