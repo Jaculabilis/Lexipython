@@ -1,33 +1,32 @@
 <html>
 <head>
 <title>Rules | Lexicon Title</title>
+<!--<link rel="shortcut icon" href="favicon.png" />-->
 <style>
 body { background-color: #eeeeee; margin: 10px; }
-div#header { background-color: #ffffff; margin: 10px 0; padding: 8px; box-shadow: 2px 2px 10px #888888; }
-div.header-option { display:inline-block; margin-right: 20px; }
-div#sidebar-outer { width: 140px; background-color: #ffffff; float:left; box-shadow: 2px 2px 10px #888888; padding: 5px; }
-div#sidebar-inner { padding: 5px; }
-img#logo { width: 140px; }
-div.content { margin-left: 160px; margin-top: 10px; background-color: #ffffff; padding: 10px; box-shadow: 2px 2px 10px #888888; }
+div#header { background-color: #ffffff; margin: 10px 0; box-shadow: 2px 2px 10px #888888; overflow: hidden; }
+img#logo { float:left; margin:8px; max-width: 140px; }
+div#header p { margin:10px; }
+div.content { margin-top: 10px; background-color: #ffffff; padding: 10px; box-shadow: 2px 2px 10px #888888; overflow: hidden; }
 a.phantom { color: #cc2200; }
 div.citeblock a.phantom { font-style: italic; }
 span.signature { text-align: right; }
+div.moveable { float: left; margin: 8px; }
+div.moveable p { margin: 0px; }
 </style>
 </head>
 <body>
 <div id="header">
-<div class="header-option"><h2 style="margin:0px;">Lexicon Title</h2></div>
-<div class="header-option"><a href="./rules.html">Rules</a></div>
-<div class="header-option"><a href="./formatting.html">Formatting</a></div>
-<div class="header-option"><a href="./index.html">Index</a></div>
-<div class="header-option"><a href="./session.html">Session</a></div>
-<div class="header-option"><a href="./stats.html">Statistics</a></div>
-</div>
-<div id="sidebar-outer">
-<img id="logo" src="logo.png">
-<div id="sidebar-inner">
-<p><i>Sidebar content</i></p>
-</div>
+<img id="logo" src="../logo.png">
+<p><span style="font-size:1.5em;">Lexicon Title</span></p>
+<p>
+<a href="../contents">Contents</a> &mdash;
+<a href="../rules/">Rules</a> &mdash;
+<a href="../formatting/">Formatting</a> &mdash;
+<a href="../session/">Session</a> &mdash;
+<a href="../statistics/">Statistics</a>
+</p>
+<p><i>Prompt goes here</i></p>
 </div>
 <div class="content">
 <h1>Rules</h1>

@@ -1,0 +1,15 @@
+# Author: Authorname
+# Turn: 1
+# Title: Example page
+
+This is an example page.
+Some words are //italicized//,
+and some words are **bolded**.
+All of these sentences are part of the same paragraph.
+
+This is a new paragraph.\\
+Unlike the last paragraph, this line will be after a line break within the paragraph.
+
+This is an [[example citation|Phantom page]]. You can also cite a [[phantom page]] with just the title.
+
+~Dr. X. Amplepage

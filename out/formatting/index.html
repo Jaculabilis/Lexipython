@@ -1,0 +1,58 @@
+<html>
+<head>
+<title>Formatting | Lexicon Title</title>
+<!--<link rel="shortcut icon" href="favicon.png" />-->
+<style>
+body { background-color: #eeeeee; margin: 10px; }
+div#header { background-color: #ffffff; margin: 10px 0; box-shadow: 2px 2px 10px #888888; overflow: hidden; }
+img#logo { float:left; margin:8px; max-width: 140px; }
+div#header p { margin:10px; }
+div.content { margin-top: 10px; background-color: #ffffff; padding: 10px; box-shadow: 2px 2px 10px #888888; overflow: hidden; }
+a.phantom { color: #cc2200; }
+div.citeblock a.phantom { font-style: italic; }
+span.signature { text-align: right; }
+div.moveable { float: left; margin: 8px; }
+div.moveable p { margin: 0px; }
+</style>
+</head>
+<body>
+<div id="header">
+<img id="logo" src="../logo.png">
+<p><span style="font-size:1.5em;">Lexicon Title</span></p>
+<p>
+<a href="../contents">Contents</a> &mdash;
+<a href="../rules/">Rules</a> &mdash;
+<a href="../formatting/">Formatting</a> &mdash;
+<a href="../session/">Session</a> &mdash;
+<a href="../statistics/">Statistics</a>
+</p>
+<p><i>Prompt goes here</i></p>
+</div>
+<div class="content">
+<h1>Formatting</h1>
+<p>Lexipython provides support for a limited amount of Markdown-esque formatting.</p>
+<pre style="background:#eeeeee">
+# Author: Authorname
+# Turn: 1
+# Title: Example page
+
+This is an example page.
+Some words are //italicized//,
+and some words are **bolded**.
+All of these sentences are part of the same paragraph.
+
+This is a new paragraph.\\
+Unlike the last paragraph, this line will be after a line break within the paragraph.
+
+This is an [[example citation|Phantom page]]. You can also cite a [[phantom page]] with just the title.
+
+~Dr. X. Amplepage
+</pre>
+<p>Each turn, fill out the header with your author information, the  current turn, and the title of your entry. It doesn't really matter what the <i>Author</i> field is, except that it must be the same across all articles you write.</p>
+<p>Two line breaks begins a new paragraph. A single line break does nothing, unless the line is neded by a double backslash (\\).</p>
+<p>Text bounded by ** will be bolded: **bold** produces <b>bold</b>. Text bounded by // will be italicized: //italics// produces <i>italics</i>.</p>
+<p>To cite another Lexicon entry, use double brackets. Text in double brackets will cite and link to the entry of the same name: [[Example page]] produces <a href="Example_page.html" class="phantom">Example page</a>. Text in double brackets split with a | will alias the link as the left text and link to the entry with the name of the right text: [[this text|Example page]] produces <a href="Example_page.html" class="phantom">this text</a>. <b>You must be precise in the entry title you cite to.</b> Citations to "Example" vs. "The Example" will point to different entries and create different phantoms, and your GM will probably have to clean up after you.</p>
+<p>Beginning a paragraph with ~ will right-align it and place a horizontal line above it. Use this for signing your entry with your scholar's name.</p>
+</div>
+</body>
+</html>
