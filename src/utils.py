@@ -1,4 +1,5 @@
 import os
+import re
 from urllib import parse
 
 # Short utility functions for handling titles
