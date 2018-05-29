@@ -132,15 +132,12 @@ def command_init(name):
 	os.mkdir(os.path.join(lex_path, "statistics"))
 	# Open the default config file
 	config = utils.load_resource("lexicon.cfg")
-	#with open(os.path.join("src", "resources", "lexicon.cfg")) as def_cfg:
-	#	config = def_cfg.read()
 	# Edit the name field
 	config = re.sub("Lexicon Title", "Lexicon {}".format(name), config)
 	# Create the Lexicon's config file
 	with open(os.path.join(lex_path, "lexicon.cfg"), "w") as config_file:
 		config_file.write(config)
 	# Create an example page
-	#with open(os.path.join("src", "resources", "example-page.txt")) as srcfile:
 	with open(os.path.join(lex_path, "src", "example-page.txt"), "w") as destfile:
 		destfile.write(utils.load_resource("example-page.txt"))
 	# Create an empty status file
