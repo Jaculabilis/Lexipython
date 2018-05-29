@@ -8,31 +8,6 @@ import re		# For parsing lex content
 import io		# For writing pages out as UTF-8
 import networkx # For pagerank analytics
 from collections import defaultdict # For rank inversion in statistics
-from urllib import parse
-
-# Short utility functions for handling titles
-
-def titlecase(s):
-	"""Enforces capitalization of titles."""
-	s = s.strip()
-	return s[:1].capitalize() + s[1:]
-
-def titleescape(s):
-	"""Makes an article title filename-safe."""
-	s = s.strip()
-	s = re.sub(r"\s+", '_', s)		# Replace whitespace with _
-	s = parse.quote(s)				# Encode all other characters
-	s = re.sub(r"%", "", s)			# Strip encoding %s
-	if len(s) > 64:					# If the result is unreasonably long,
-		s = hex(abs(hash(s)))[2:]	# Replace it with a hex hash
-	return s
-
-def titlestrip(s):
-	"""Strips certain prefixes for title sorting."""
-	if s.startswith("The "): return s[4:]
-	if s.startswith("An "): return s[3:]
-	if s.startswith("A "): return s[2:]
-	return s
 
 # Main article class
 
@@ -226,41 +201,6 @@ def populate(lexicon_articles):
 				article.wcites.add(target)
 			article_by_title[target].citedby.add(article.title)
 	return list(article_by_title.values())
-
-def load_resource(filename, cache={}):
-	"""Loads files from the resources directory with caching."""
-	if filename not in cache:
-		cache[filename] = open("resources/" + filename, "r", encoding="utf8").read()
-	return cache[filename]
-
-def load_config():
-	"""Loads values from the config file."""
-	config = {}
-	with open("lexicon.cfg", "r", encoding="utf8") as f:
-		line = f.readline()
-		while line:
-			# Skim lines until a value definition begins
-			conf_match = re.match(">>>([^>]+)>>>\s+", line)
-			if not conf_match:
-				line = f.readline()
-				continue
-			# Accumulate the conf value until the value ends
-			conf = conf_match.group(1)
-			conf_value = ""
-			line = f.readline()
-			conf_match = re.match("<<<{0}<<<\s+".format(conf), line)
-			while line and not conf_match:
-				conf_value += line
-				line = f.readline()
-				conf_match = re.match("<<<{0}<<<\s+".format(conf), line)
-			if not line:
-				raise SystemExit("Reached EOF while reading config value {}".format(conf))
-			config[conf] = conf_value.strip()
-	# Check that all necessary values were configured
-	for config_value in ['LEXICON_TITLE', 'PROMPT', 'SESSION_PAGE', "INDEX_LIST"]:
-		if config_value not in config:
-			raise SystemExit("Error: {} not set in lexipython.cfg".format(config_value))
-	return config
 
 # Build functions
 
