@@ -8,6 +8,8 @@ if sys.version_info[0] < 3:
 import argparse
 import os
 import re
+import json
+import src.utils as utils
 
 def is_lexicon(name):
 	"""
@@ -15,13 +17,25 @@ def is_lexicon(name):
 	Inputs:
 		name    The Lexicon name to check. Assumed to be an existing folder.
 	Output:
-		If the given name is a Lexicon game, returns a tuple (True, status)
-		where status is a string with the Lexicon's status. Otherwise, returns
-		(False, errormsg) where errormsg is a string detailing the error.
+		Returns a tuple (result, msg, status), where result is True if the
+		given name is a Lexicon game and False otherwise, msg is the Lexicon's
+		status or an error message, and status is the status dictionary of the
+		Lexicon or None.
 	"""
-	# TODO: Verify the folder is a Lexicon
-		#return (False, "'{}' is not a Lexicon game, or it may be corrupted.".format(name))
-	return (True, "A Lexicon")
+	if not os.path.isfile(os.path.join("lexicon", name, "lexicon.cfg")):
+		return (False, "'{}' is not a Lexicon game, or its config file may be missing.".format(name), None)
+	if not os.path.isfile(os.path.join("lexicon", name, "status")):
+		return (True, "status missing", None)
+	with open(os.path.join("lexicon", name, "status")) as statusfile:
+		raw = statusfile.read()
+		if len(raw) == 0:
+			return (True, "unbuilt", {})
+		try:
+			status = json.loads(raw)
+		except:
+			return (True, "status corrupted", None)
+		return (True, "ye", status) # TODO
+	return (False, "Error checking Lexicon status", None)
 
 def overview_all():
 	"""
@@ -33,15 +47,15 @@ def overview_all():
 	with os.scandir("lexicon") as lexicons:
 		for entry in lexicons:
 			if entry.is_dir():
-				check = is_lexicon(entry.name)
-				if check[0]:
-					lexicon_names.append((entry.name, check[1]))
+				result, msg, status = is_lexicon(entry.name)
+				if result:
+					lexicon_names.append((entry.name, msg))
 	# Print the results
 	if len(lexicon_names) > 0:
-		l = max([len(name[0]) for name in lexicon_names]) + 4
+		l = max([len(name) for name, msg in lexicon_names]) + 4
 		print("Lexicons:")
-		for name, status in sorted(lexicon_names):
-			print("  {}{}{}".format(name, " " * (l - len(name)), status))
+		for name, msg in sorted(lexicon_names):
+			print("  {}{}{}".format(name, " " * (l - len(name)), msg))
 	else:
 		print("There are no Lexicons yet. Create one with:\n\n"\
 		      "    lexipython.py [name] init")
@@ -55,13 +69,14 @@ def overview_one(name):
 	if not os.path.isdir(os.path.join("lexicon", name)):
 		print("Error: There is no Lexicon named '{}'.".format(name))
 		return
-	check = is_lexicon(name)
-	if not check[0]:
-		print("Error: " + check[1])
+	result, msg, status = is_lexicon(name)
+	if not result:
+		print("Error: " + msg)
 		return
 	# Print status and summary
+	print(msg)
+	print(status)
 	# TODO
-	print("Lexicon {} exists, status {}".format(name, check[1]))
 
 def run_command(name, command):
 	"""
@@ -79,9 +94,9 @@ def run_command(name, command):
 		if not os.path.exists(os.path.join("lexicon", name)):
 			print("Error: There is no Lexicon named '{}'.".format(name))
 			return
-		check = is_lexicon(name)
-		if not check[0]:
-			print("Error: " + check[1])
+		result, msg, status = is_lexicon(name)
+		if not result:
+			print("Error: " + msg)
 			return
 		# Build the Lexicon
 		command_build(name)
@@ -90,9 +105,9 @@ def run_command(name, command):
 		if not os.path.exists(os.path.join("lexicon", name)):
 			print("Error: There is no Lexicon named '{}'.".format(name))
 			return
-		check = is_lexicon(name)
-		if not check[0]:
-			print("Error: " + check[1])
+		result, msg, status = is_lexicon(name)
+		if not result:
+			print("Error: " + msg)
 			return
 		# Run a server managing the Lexicon
 		command_run(name)
@@ -116,18 +131,20 @@ def command_init(name):
 	os.mkdir(os.path.join(lex_path, "session"))
 	os.mkdir(os.path.join(lex_path, "statistics"))
 	# Open the default config file
-	config = None
-	with open(os.path.join("src", "resources", "lexicon.cfg")) as def_cfg:
-		config = def_cfg.read()
+	config = utils.load_resource("lexicon.cfg")
+	#with open(os.path.join("src", "resources", "lexicon.cfg")) as def_cfg:
+	#	config = def_cfg.read()
 	# Edit the name field
 	config = re.sub("Lexicon Title", "Lexicon {}".format(name), config)
 	# Create the Lexicon's config file
 	with open(os.path.join(lex_path, "lexicon.cfg"), "w") as config_file:
 		config_file.write(config)
 	# Create an example page
-	with open(os.path.join("src", "resources", "example-page.txt")) as srcfile:
-		with open(os.path.join(lex_path, "src", "example-page.txt"), "w") as destfile:
-			destfile.write(srcfile.read())
+	#with open(os.path.join("src", "resources", "example-page.txt")) as srcfile:
+	with open(os.path.join(lex_path, "src", "example-page.txt"), "w") as destfile:
+		destfile.write(utils.load_resource("example-page.txt"))
+	# Create an empty status file
+	open(os.path.join(lex_path, "status"), "w").close()
 	print("Created Lexicon {}".format(name))
 
 def command_build(name):
