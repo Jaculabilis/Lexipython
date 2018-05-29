@@ -7,6 +7,7 @@ if sys.version_info[0] < 3:
 
 import argparse
 import os
+import re
 
 def is_lexicon(name):
 	"""
@@ -104,7 +105,30 @@ def command_init(name):
 	"""
 	Sets up a Lexicon game with the given name.
 	"""
-	pass
+	# Create the folder structure
+	lex_path = os.path.join("lexicon", name)
+	os.mkdir(lex_path)
+	os.mkdir(os.path.join(lex_path, "src"))
+	os.mkdir(os.path.join(lex_path, "article"))
+	os.mkdir(os.path.join(lex_path, "contents"))
+	os.mkdir(os.path.join(lex_path, "formatting"))
+	os.mkdir(os.path.join(lex_path, "rules"))
+	os.mkdir(os.path.join(lex_path, "session"))
+	os.mkdir(os.path.join(lex_path, "statistics"))
+	# Open the default config file
+	config = None
+	with open(os.path.join("src", "resources", "lexicon.cfg")) as def_cfg:
+		config = def_cfg.read()
+	# Edit the name field
+	config = re.sub("Lexicon Title", "Lexicon {}".format(name), config)
+	# Create the Lexicon's config file
+	with open(os.path.join(lex_path, "lexicon.cfg"), "w") as config_file:
+		config_file.write(config)
+	# Create an example page
+	with open(os.path.join("src", "resources", "example-page.txt")) as srcfile:
+		with open(os.path.join(lex_path, "src", "example-page.txt"), "w") as destfile:
+			destfile.write(srcfile.read())
+	print("Created Lexicon {}".format(name))
 
 def command_build(name):
 	"""
