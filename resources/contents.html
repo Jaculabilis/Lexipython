@@ -13,5 +13,9 @@ contentsToggle = function() {
 		b.innerText = "Switch to turn order"
 	}
 }
+window.onload = function(){
+	if (location.search.search("byturn") > 0)
+		contentsToggle();
+}
 </script>
 <button id="toggle-button" onClick="javascript:contentsToggle()">Switch to turn order</button>
