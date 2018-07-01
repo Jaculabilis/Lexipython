@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-# Check for the right Python version
 import sys
 if sys.version_info[0] < 3:
 	raise Exception("Lexipython requires Python 3")
@@ -9,6 +8,8 @@ import argparse
 import os
 import re
 import json
+from src.article import LexiconArticle
+import src.build as build
 import src.utils as utils
 
 def is_lexicon(name):
@@ -143,12 +144,77 @@ def command_init(name):
 	# Create an empty status file
 	open(os.path.join(lex_path, "status"), "w").close()
 	print("Created Lexicon {}".format(name))
+	# Done initializing
+	return
 
 def command_build(name):
 	"""
 	Rebuilds the browsable pages of a Lexicon.
 	"""
-	pass
+	# Load the Lexicon's peripherals
+	config = utils.load_config(name)
+	entry_skeleton = utils.load_resource("entry-page.html")
+	css = utils.load_resource("lexicon.css")
+	# Parse the written articles
+	articles = LexiconArticle.parse_from_directory(os.path.join("lexicon", name, "src"))
+	# At this point, the articles haven't been cross-populated,
+	# so we can derive the written titles from this list
+	written_titles = [article.title for article in articles]
+	articles = sorted(
+		LexiconArticle.populate(articles),
+		key=lambda a: utils.titlestrip(a.title))
+	#phantom_titles = [article.title for article in articles if article.title not in written_titles]
+	lex_path = os.path.join("lexicon", name)
+	def pathto(*els):
+		return os.path.join(lex_path, *els)
+	
+	# Write the redirect page
+	print("Writing redirect page...")
+	with open(pathto("index.html"), "w", encoding="utf8") as f:
+		f.write(utils.load_resource("redirect.html").format(lexicon=config["LEXICON_TITLE"]))
+	
+	# Write the article pages
+	print("Deleting old article pages...")
+	for filename in os.listdir(pathto("article")):
+		if filename[-5:] == ".html":
+			os.remove(pathto("article", filename))
+	print("Writing article pages...")
+	l = len(articles)
+	for idx in range(l):
+		article = articles[idx]
+		with open(pathto("article", article.title_filesafe + ".html"), "w", encoding="utf8") as f:
+			content = article.build_default_content()
+			citeblock = article.build_default_citeblock(
+				None if idx == 0 else articles[idx - 1].title,
+				None if idx == l-1 else articles[idx + 1].title)
+			article_html = entry_skeleton.format(
+				title = article.title,
+				lexicon = config["LEXICON_TITLE"],
+				css = css,
+				logo = config["LOGO_FILENAME"],
+				prompt = config["PROMPT"],
+				content = content,
+				citeblock = citeblock)
+			f.write(article_html)
+		print("    Wrote " + article.title)
+	
+	# Write default pages
+	print("Writing default pages...")
+	with open(pathto("contents", "index.html"), "w", encoding="utf8") as f:
+		f.write(build.build_contents_page(articles, config))
+	print("    Wrote Contents")
+	with open(pathto("rules", "index.html"), "w", encoding="utf8") as f:
+		f.write(build.build_rules_page(config))
+	print("    Wrote Rules")
+	with open(pathto("formatting", "index.html"), "w", encoding="utf8") as f:
+		f.write(build.build_formatting_page(config))
+	print("    Wrote Formatting")
+	with open(pathto("session", "index.html"), "w", encoding="utf8") as f:
+		f.write(build.build_session_page(config))
+	print("    Wrote Session")
+	with open(pathto("statistics", "index.html"), "w", encoding="utf8") as f:
+		f.write(build.build_statistics_page(articles, config))
+	print("    Wrote Statistics")
 
 def command_run(name):
 	"""
