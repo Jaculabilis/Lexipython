@@ -8,7 +8,7 @@ class LexiconArticle:
 	A Lexicon article and its metadata.
 	
 	Members:
-	author			string: the author of the article
+	player			string: the player of the article
 	turn			integer: the turn the article was written for
 	title			string: the article title
 	title_filesafe	string: the title, escaped, used for filenames
@@ -20,11 +20,11 @@ class LexiconArticle:
 	The last three are filled in by populate().
 	"""
 
-	def __init__(self, author, turn, title, content, citations):
+	def __init__(self, player, turn, title, content, citations):
 		"""
 		Creates a LexiconArticle object with the given parameters.
 		"""
-		self.author = author
+		self.player = player
 		self.turn = turn
 		self.title = title
 		self.title_filesafe = utils.titleescape(title)
@@ -44,12 +44,12 @@ class LexiconArticle:
 		if len(headers) != 4:
 			print("Header read error")
 			return None
-		author_header, turn_header, title_header, content_raw = headers
-		# Validate and sanitize the author header
-		if not author_header.startswith("# Author:"):
-			print("Author header missing or corrupted")
+		player_header, turn_header, title_header, content_raw = headers
+		# Validate and sanitize the player header
+		if not player_header.startswith("# Player:"):
+			print("Player header missing or corrupted")
 			return None
-		author = author_header[9:].strip()
+		player = player_header[9:].strip()
 		# Validate and sanitize the turn header
 		if not turn_header.startswith("# Turn:"):
 			print("Turn header missing or corrupted")
@@ -99,7 +99,7 @@ class LexiconArticle:
 			else:
 				para = "<p>" + para + "</p>\n"
 			content += para
-		return LexiconArticle(author, turn, title, content, citations)
+		return LexiconArticle(player, turn, title, content, citations)
 
 	@staticmethod
 	def parse_from_directory(directory):
@@ -142,7 +142,7 @@ class LexiconArticle:
 				if target not in article_by_title:
 					article_by_title[target] = LexiconArticle(None, sys.maxsize, target, "<p><i>This entry hasn't been written yet.</i></p>", {})
 				# Interlink citations
-				if article_by_title[target].author is None:
+				if article_by_title[target].player is None:
 					article.pcites.add(target)
 				else:
 					article.wcites.add(target)
