@@ -243,7 +243,39 @@ def build_compiled_page(articles, config):
 	"""
 	Builds a page compiling all articles in the Lexicon.
 	"""
-	pass
+	# Sort by turn and title
+	turn_order = sorted(
+		articles,
+		key=lambda a: (a.turn, utils.titlesort(a.title)))
+
+	# Build the content of each article
+	css = utils.load_resource("lexicon.css")
+	css += "\n"\
+		"body { background: #ffffff; }\n"
+	content = "<html>\n"\
+		"<head>\n"\
+		"<title>{lexicon}</title>\n"\
+		"<style>\n"\
+		"{css}\n"\
+		"</style>\n"\
+		"<body>\n"\
+		"<h1>{lexicon}</h1>".format(
+			lexicon=config["LEXICON_TITLE"],
+			css=css)
+	for article in turn_order:
+		format_map = {
+			format_id: cite_tuple[0] # TODO
+			for format_id, cite_tuple in article.citations.items()
+		}
+		article_body = article.content.format(**format_map)
+		# Stitch a page-break-avoid div around the header and first paragraph
+		article_body = article_body.replace("</p>", "</p></div>", 1)
+		article_block = "<div style=\"page-break-inside:avoid;\">\n"\
+			"<h2>{}</h2>\n"\
+			"{}\n".format(article.title, article_body)
+		content += article_block
+	content += "</body></html>"
+	return content
 
 def build_all(path_prefix, lexicon_name):
 	"""
@@ -315,3 +347,9 @@ def build_all(path_prefix, lexicon_name):
 	with open(pathto("statistics", "index.html"), "w", encoding="utf8") as f:
 		f.write(build_statistics_page(articles, config))
 	print("    Wrote Statistics")
+
+	# Write auxiliary pages
+	if "PRINTABLE_FILE" in config and config["PRINTABLE_FILE"]:
+		with open(pathto(config["PRINTABLE_FILE"]), "w", encoding="utf-8") as f:
+			f.write(build_compiled_page(articles, config))
+		print("    Wrote compiled page to " + config["PRINTABLE_FILE"])
