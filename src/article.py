@@ -170,11 +170,11 @@ class LexiconArticle:
 		citeblock = "<div class=\"content citeblock\">\n"
 		# Prev/next links
 		if next_article is not None:
-			citeblock += "<p style=\"float:right\"><a href=\"{}.html\">Next &#8594;</a></p>\n".format(
-				next_article.title_filesafe)
+			citeblock += "<p style=\"float:right\"><a href=\"{}.html\"{}>Next &#8594;</a></p>\n".format(
+				next_article.title_filesafe, " class=\"phantom\"" if next_article.player is None else "")
 		if prev_article is not None:
-			citeblock += "<p><a href=\"{}.html\">&#8592; Previous</a></p>\n".format(
-				prev_article.title_filesafe)
+			citeblock += "<p><a href=\"{}.html\"{}>&#8592; Previous</a></p>\n".format(
+				prev_article.title_filesafe, " class=\"phantom\"" if prev_article.player is None else "")
 		if next_article is None and prev_article is None:
 			citeblock += "<p>&nbsp;</p>\n"
 		# Citations
