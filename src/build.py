@@ -251,7 +251,8 @@ def build_compiled_page(articles, config):
 	# Build the content of each article
 	css = utils.load_resource("lexicon.css")
 	css += "\n"\
-		"body { background: #ffffff; }\n"
+		"body { background: #ffffff; }\n"\
+		"sup { vertical-align: top; font-size: 0.6em; }\n"
 	content = "<html>\n"\
 		"<head>\n"\
 		"<title>{lexicon}</title>\n"\
@@ -263,17 +264,29 @@ def build_compiled_page(articles, config):
 			lexicon=config["LEXICON_TITLE"],
 			css=css)
 	for article in turn_order:
+		# Stitch in superscripts for citations
 		format_map = {
-			format_id: cite_tuple[0] # TODO
+			format_id: "{}<sup>{}</sup>".format(cite_tuple[0], format_id[1:])
 			for format_id, cite_tuple in article.citations.items()
 		}
 		article_body = article.content.format(**format_map)
 		# Stitch a page-break-avoid div around the header and first paragraph
 		article_body = article_body.replace("</p>", "</p></div>", 1)
+		# Append the citation block
+		cite_list = "<br>\n".join(
+			"{}. {}\n".format(format_id[1:], cite_tuple[1])
+			for format_id, cite_tuple in sorted(
+				article.citations.items(),
+				key=lambda t:int(t[0][1:])))
+		cite_block = "" if article.player is None else ""\
+			"<p><i>Citations:</i><br>\n"\
+			"{}\n</p>".format(cite_list)
 		article_block = "<div style=\"page-break-inside:avoid;\">\n"\
 			"<h2>{}</h2>\n"\
-			"{}\n".format(article.title, article_body)
+			"{}\n"\
+			"{}\n".format(article.title, article_body, cite_block)
 		content += article_block
+
 	content += "</body></html>"
 	return content
 
