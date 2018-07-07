@@ -13,7 +13,7 @@ def build_contents_page(articles, config):
 	Builds the full HTML of the contents page.
 	"""
 	content = ""
-	# Article counts
+	# Head the contents page with counts of written and phantom articles
 	phantom_count = len([article for article in articles if article.player is None])
 	if phantom_count == 0:
 		content = "<p>There are <b>{0}</b> entries in this lexicon.</p>\n".format(len(articles))
@@ -23,48 +23,44 @@ def build_contents_page(articles, config):
 	# Prepare article links
 	link_by_title = {article.title : "<a href=\"../article/{1}.html\"{2}>{0}</a>".format(
 			article.title, article.title_filesafe,
-			"" if article.player is not None else " class=\"phantom\"")
+			" class=\"phantom\"" if article.player is None else "")
 			for article in articles}
 	# Write the articles in alphabetical order
 	content += utils.load_resource("contents.html")
 	content += "<div id=\"index-order\" style=\"display:block\">\n<ul>\n"
 	indices = config["INDEX_LIST"].split("\n")
-	alphabetical_order = sorted(articles, key=lambda a: utils.titlecase(a.title))
+	alphabetical_order = sorted(
+		articles,
+		key=lambda a: utils.titlesort(a.title))
 	check_off = list(alphabetical_order)
 	for index_str in indices:
 		content += "<h3>{0}</h3>\n".format(index_str)
 		for article in alphabetical_order:
-			if (utils.titlestrip(article.title)[0].upper() in index_str):
+			if (utils.titlesort(article.title)[0].upper() in index_str):
 				check_off.remove(article)
-				content += "<li>"
-				content += link_by_title[article.title]
-				content += "</li>\n"
+				content += "<li>{}</li>\n".format(link_by_title[article.title])
 	if len(check_off) > 0:
 		content += "<h3>&c.</h3>\n"
 		for article in check_off:
-			content += "<li>"
-			content += link_by_title[article.title]
-			content += "</li>\n"
+			content += "<li>{}</li>\n".format(link_by_title[article.title])
 	content += "</ul>\n</div>\n"
 	# Write the articles in turn order
 	content += "<div id=\"turn-order\" style=\"display:none\">\n<ul>\n"
 	latest_turn = max([article.turn for article in articles if article.player is not None])
-	turn_order = sorted(articles, key=lambda a: (a.turn, utils.titlecase(a.title)))
+	turn_order = sorted(
+		articles,
+		key=lambda a: (a.turn, utils.titlesort(a.title)))
 	check_off = list(turn_order)
 	for turn_num in range(1, latest_turn + 1):
 		content += "<h3>Turn {0}</h3>\n".format(turn_num)
 		for article in turn_order:
 			if article.turn == turn_num:
 				check_off.remove(article)
-				content += "<li>"
-				content += link_by_title[article.title]
-				content += "</li>\n"
+				content += "<li>{}</li>\n".format(link_by_title[article.title])
 	if len(check_off) > 0:
 		content += "<h3>Unwritten</h3>\n"
 		for article in check_off:
-			content += "<li>"
-			content += link_by_title[article.title]
-			content += "</li>\n"
+			content += "<li>{}</li>\n".format(link_by_title[article.title])
 	content += "</ul>\n</div>\n"
 	# Fill in the page skeleton
 	entry_skeleton = utils.load_resource("entry-page.html")
@@ -264,9 +260,10 @@ def build_all(path_prefix, lexicon_name):
 	# so we can derive the written titles from this list
 	#written_titles = [article.title for article in articles]
 	# Once they've been populated, the articles list has the titles of all articles
+	# Sort this by turn before title so prev/next links run in turn order
 	articles = sorted(
 		LexiconArticle.populate(articles),
-		key=lambda a: utils.titlestrip(a.title))
+		key=lambda a: (a.turn, utils.titlesort(a.title)))
 	#phantom_titles = [article.title for article in articles if article.title not in written_titles]
 	def pathto(*els):
 		return os.path.join(lex_path, *els)

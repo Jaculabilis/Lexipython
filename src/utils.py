@@ -23,13 +23,14 @@ def titleescape(s):
 		s = hex(abs(hash(s)))[2:]  # Replace it with a hex hash
 	return s
 
-def titlestrip(s):
+def titlesort(s):
 	"""
-	Strips articles for title sorting.
+	Reduces titles down for sorting.
 	"""
-	if s.startswith("The "): return s[4:]
-	if s.startswith("An "): return s[3:]
-	if s.startswith("A "): return s[2:]
+	s = s.lower()
+	if s.startswith("the "): return s[4:]
+	if s.startswith("an "): return s[3:]
+	if s.startswith("a "): return s[2:]
 	return s
 
 # Load functions
