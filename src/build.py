@@ -5,7 +5,8 @@ import io		# For writing pages out as UTF-8
 import networkx # For pagerank analytics
 from collections import defaultdict # For rank inversion in statistics
 
-import src.utils as utils
+from src import utils
+from src.article import LexiconArticle
 
 def build_contents_page(articles, config):
 	"""
@@ -39,7 +40,7 @@ def build_contents_page(articles, config):
 				content += link_by_title[article.title]
 				content += "</li>\n"
 	if len(check_off) > 0:
-		content += "<h3>&c.</h3>\n".format(index_str)
+		content += "<h3>&c.</h3>\n"
 		for article in check_off:
 			content += "<li>"
 			content += link_by_title[article.title]
@@ -132,7 +133,11 @@ def build_statistics_page(articles, config):
 	Builds the full HTML of the statistics page.
 	"""
 	content = ""
-	cite_map = {article.title : [cite_tuple[1] for cite_tuple in article.citations.values()] for article in articles}
+	cite_map = {
+		article.title : [
+			cite_tuple[1]
+			for cite_tuple in article.citations.values()]
+		for article in articles}
 	# Pages by pagerank
 	content += "<div class=\"moveable\">\n"
 	content += "<p><u>Top 10 pages by page rank:</u><br>\n"
@@ -238,9 +243,78 @@ def build_graphviz_file(cite_map):
 	result.append("overlap=false;\n}\n")
 	return "".join(result)#"…"
 
-# Summative functions
+def build_compiled_page(articles, config):
+	"""
+	Builds a page compiling all articles in the Lexicon.
+	"""
+	pass
 
+def build_all(path_prefix, lexicon_name):
+	"""
+	Builds all browsable articles and pages in the Lexicon.
+	"""
+	lex_path = os.path.join(path_prefix, lexicon_name)
+	# Load the Lexicon's peripherals
+	config = utils.load_config(lexicon_name)
+	entry_skeleton = utils.load_resource("entry-page.html")
+	css = utils.load_resource("lexicon.css")
+	# Parse the written articles
+	articles = LexiconArticle.parse_from_directory(os.path.join(lex_path, "src"))
+	# At this point, the articles haven't been cross-populated,
+	# so we can derive the written titles from this list
+	#written_titles = [article.title for article in articles]
+	# Once they've been populated, the articles list has the titles of all articles
+	articles = sorted(
+		LexiconArticle.populate(articles),
+		key=lambda a: utils.titlestrip(a.title))
+	#phantom_titles = [article.title for article in articles if article.title not in written_titles]
+	def pathto(*els):
+		return os.path.join(lex_path, *els)
 
-	# Write auxiliary files
-	# TODO: write graphviz file
-	# TODO: write compiled lexicon page
+	# Write the redirect page
+	print("Writing redirect page...")
+	with open(pathto("index.html"), "w", encoding="utf8") as f:
+		f.write(utils.load_resource("redirect.html").format(lexicon=config["LEXICON_TITLE"]))
+
+	# Write the article pages
+	print("Deleting old article pages...")
+	for filename in os.listdir(pathto("article")):
+		if filename[-5:] == ".html":
+			os.remove(pathto("article", filename))
+	print("Writing article pages...")
+	l = len(articles)
+	for idx in range(l):
+		article = articles[idx]
+		with open(pathto("article", article.title_filesafe + ".html"), "w", encoding="utf8") as f:
+			content = article.build_default_content()
+			citeblock = article.build_default_citeblock(
+				None if idx == 0 else articles[idx - 1].title,
+				None if idx == l-1 else articles[idx + 1].title)
+			article_html = entry_skeleton.format(
+				title = article.title,
+				lexicon = config["LEXICON_TITLE"],
+				css = css,
+				logo = config["LOGO_FILENAME"],
+				prompt = config["PROMPT"],
+				content = content,
+				citeblock = citeblock)
+			f.write(article_html)
+		print("    Wrote " + article.title)
+
+	# Write default pages
+	print("Writing default pages...")
+	with open(pathto("contents", "index.html"), "w", encoding="utf8") as f:
+		f.write(build_contents_page(articles, config))
+	print("    Wrote Contents")
+	with open(pathto("rules", "index.html"), "w", encoding="utf8") as f:
+		f.write(build_rules_page(config))
+	print("    Wrote Rules")
+	with open(pathto("formatting", "index.html"), "w", encoding="utf8") as f:
+		f.write(build_formatting_page(config))
+	print("    Wrote Formatting")
+	with open(pathto("session", "index.html"), "w", encoding="utf8") as f:
+		f.write(build_session_page(config))
+	print("    Wrote Session")
+	with open(pathto("statistics", "index.html"), "w", encoding="utf8") as f:
+		f.write(build_statistics_page(articles, config))
+	print("    Wrote Statistics")
