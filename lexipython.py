@@ -9,8 +9,8 @@ import os
 import re
 import json
 from src.article import LexiconArticle
-import src.build as build
-import src.utils as utils
+from src import build
+from src import utils
 
 def is_lexicon(name):
 	"""
