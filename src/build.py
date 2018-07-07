@@ -288,8 +288,8 @@ def build_all(path_prefix, lexicon_name):
 		with open(pathto("article", article.title_filesafe + ".html"), "w", encoding="utf8") as f:
 			content = article.build_default_content()
 			citeblock = article.build_default_citeblock(
-				None if idx == 0 else articles[idx - 1].title,
-				None if idx == l-1 else articles[idx + 1].title)
+				None if idx == 0 else articles[idx - 1],
+				None if idx == l-1 else articles[idx + 1])
 			article_html = entry_skeleton.format(
 				title = article.title,
 				lexicon = config["LEXICON_TITLE"],

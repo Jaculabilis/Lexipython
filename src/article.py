@@ -162,18 +162,20 @@ class LexiconArticle:
 		}
 		return self.content.format(**format_map)
 
-	def build_default_citeblock(self, prev_target, next_target):
+	def build_default_citeblock(self, prev_article, next_article):
 		"""
 		Builds the citeblock content HTML for use in regular article pages.
 		For each defined target, links the target page as Previous or Next.
 		"""
 		citeblock = "<div class=\"content citeblock\">\n"
 		# Prev/next links
-		if next_target is not None:
-			citeblock += "<p style=\"float:right\"><a href=\"{}.html\">Next &#8594;</a></p>\n".format(utils.titleescape(next_target))
-		if prev_target is not None:
-			citeblock += "<p><a href=\"{}.html\">&#8592; Previous</a></p>\n".format(utils.titleescape(prev_target))
-		elif next_target is not None:
+		if next_article is not None:
+			citeblock += "<p style=\"float:right\"><a href=\"{}.html\">Next &#8594;</a></p>\n".format(
+				next_article.title_filesafe)
+		if prev_article is not None:
+			citeblock += "<p><a href=\"{}.html\">&#8592; Previous</a></p>\n".format(
+				prev_article.title_filesafe)
+		if next_article is None and prev_article is None:
 			citeblock += "<p>&nbsp;</p>\n"
 		# Citations
 		cites_links = [
@@ -182,7 +184,7 @@ class LexiconArticle:
 			"" if title in self.wcites else " class=\"phantom\"")
 			for title in sorted(self.wcites | self.pcites)]
 		cites_str = " | ".join(cites_links)
-		if len(cites_str) < 1: cites_str = "--"
+		if len(cites_str) < 1: cites_str = "&mdash;"
 		citeblock += "<p>Citations: {}</p>\n".format(cites_str)
 		# Citedby
 		citedby_links = [
@@ -190,6 +192,6 @@ class LexiconArticle:
 			title, utils.titleescape(title))
 			for title in self.citedby]
 		citedby_str = " | ".join(citedby_links)
-		if len(citedby_str) < 1: citedby_str = "--"
+		if len(citedby_str) < 1: citedby_str = "&mdash;"
 		citeblock += "<p>Cited by: {}</p>\n</div>\n".format(citedby_str)
 		return citeblock
