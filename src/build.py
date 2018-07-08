@@ -208,7 +208,9 @@ def build_statistics_page(articles, config):
 			for a in articles
 			if a.player == player]
 		for player in players}
-	player_rank = {player : sum(map(lambda a: ranks[a.title], articles)) for player, articles in articles_by.items()}
+	player_rank = {
+		player : sum(map(lambda a: ranks[a.title] if a.title in ranks else 0, articles))
+		for player, articles in articles_by.items()}
 	content += "<br>\n".join(map(
 		lambda kv: "{0} &ndash; {1}".format(kv[0], round(kv[1], 3)),
 		sorted(player_rank.items(), key=lambda t:t[1], reverse=True)))
