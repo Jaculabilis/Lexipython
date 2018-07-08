@@ -8,15 +8,15 @@ class LexiconArticle:
 	A Lexicon article and its metadata.
 	
 	Members:
-	player			string: the player of the article
-	turn			integer: the turn the article was written for
-	title			string: the article title
-	title_filesafe	string: the title, escaped, used for filenames
-	content			string: the HTML content, with citations replaced by format hooks
-	citations		dict mapping format hook string to tuple of link alias and link target title
-	wcites			list: titles of written articles cited
-	pcites			list: titles of phantom articles cited
-	citedby			list: titles of articles that cite this
+	player          string: the player of the article
+	turn            integer: the turn the article was written for
+	title           string: the article title
+	title_filesafe  string: the title, escaped, used for filenames
+	content         string: the HTML content, with citations replaced by format hooks
+	citations       dict mapping format hook string to tuple of link alias and link target title
+	wcites          list: titles of written articles cited
+	pcites          list: titles of phantom articles cited
+	citedby         list: titles of articles that cite this
 	The last three are filled in by populate().
 	"""
 
