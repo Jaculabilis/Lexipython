@@ -134,6 +134,7 @@ def build_statistics_page(articles, config):
 			cite_tuple[1]
 			for cite_tuple in article.citations.values()]
 		for article in articles}
+
 	# Pages by pagerank
 	content += "<div class=\"moveable\">\n"
 	content += "<p><u>Top 10 pages by page rank:</u><br>\n"
@@ -147,6 +148,7 @@ def build_statistics_page(articles, config):
 	content += "<br>\n".join(map(lambda x: "{0} &ndash; {1}".format(x[0]+1, x[1]), ranking[:10]))
 	content += "</p>\n"
 	content += "</div>\n"
+
 	# Top number of citations made
 	content += "<div class=\"moveable\">\n"
 	content += "<p><u>Most citations made from:</u><br>\n"
@@ -158,11 +160,17 @@ def build_statistics_page(articles, config):
 			sorted(citation_count.items(), reverse=True)[:3]))
 	content += "</p>\n"
 	content += "</div>\n"
+
 	# Top number of times cited
 	content += "<div class=\"moveable\">\n"
 	content += "<p><u>Most citations made to:</u><br>\n"
 	all_cited = set([title for cites in cite_map.values() for title in cites])
-	cited_by_map = { cited: [citer for citer in cite_map.keys() if cited in cite_map[citer]] for cited in all_cited }
+	cited_by_map = {
+		cited: [
+			citer
+			for citer in cite_map.keys()
+			if cited in cite_map[citer]]
+		for cited in all_cited }
 	cited_tally = [(kv[0], len(kv[1])) for kv in cited_by_map.items()]
 	cited_count = defaultdict(list)
 	for title, count in cited_tally: cited_count[count].append(title)
@@ -171,17 +179,42 @@ def build_statistics_page(articles, config):
 			sorted(cited_count.items(), reverse=True)[:3]))
 	content += "</p>\n"
 	content += "</div>\n"
-	# player pageranks
+
+	# Top article length, roughly by words
+	content += "<div class=\"moveable\">\n"
+	content += "<p><u>Longest article:</u><br>\n"
+	article_length = {}
+	for article in articles:
+		format_map = {
+			format_id: cite_tuple[0]
+			for format_id, cite_tuple in article.citations.items()
+		}
+		plain_content = article.content.format(**format_map)
+		words = len(plain_content.split())
+		article_length[article.title] = words
+	content += "<br>\n".join(map(
+		lambda kv: "{0} &ndash; {1}".format(kv[1], kv[0]),
+		sorted(article_length.items(), reverse=True, key=lambda t: t[1])[:3]))
+	content += "</p>\n"
+	content += "</div>\n"
+
+	# Player pageranks
 	content += "<div class=\"moveable\">\n"
 	content += "<p><u>Player total page rank:</u><br>\n"
 	players = sorted(set([article.player for article in articles if article.player is not None]))
-	articles_by = {player : [a for a in articles if a.player == player] for player in players}
+	articles_by = {
+		player : [
+			a
+			for a in articles
+			if a.player == player]
+		for player in players}
 	player_rank = {player : sum(map(lambda a: ranks[a.title], articles)) for player, articles in articles_by.items()}
 	content += "<br>\n".join(map(
 		lambda kv: "{0} &ndash; {1}".format(kv[0], round(kv[1], 3)),
 		sorted(player_rank.items(), key=lambda t:t[1], reverse=True)))
 	content += "</p>\n"
 	content += "</div>\n"
+
 	# Player citations made
 	content += "<div class=\"moveable\">\n"
 	content += "<p><u>Citations made by player</u><br>\n"
@@ -193,7 +226,8 @@ def build_statistics_page(articles, config):
 		sorted(player_cite_count.items(), key=lambda t:t[1], reverse=True)))
 	content += "</p>\n"
 	content += "</div>\n"
-	# player cited count
+
+	# Player cited count
 	content += "<div class=\"moveable\">\n"
 	content += "<p><u>Citations made to player</u><br>\n"
 	cited_times = {player : 0 for player in players}
@@ -205,7 +239,7 @@ def build_statistics_page(articles, config):
 		sorted(cited_times.items(), key=lambda t:t[1], reverse=True)))
 	content += "</p>\n"
 	content += "</div>\n"
-	
+
 	# Fill in the entry skeleton
 	entry_skeleton = utils.load_resource("entry-page.html")
 	css = utils.load_resource("lexicon.css")
