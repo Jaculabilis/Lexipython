@@ -15,7 +15,9 @@ contentsToggle = function() {
 }
 window.onload = function(){
 	if (location.search.search("byturn") > 0)
-		contentsToggle();
+		document.getElementById("turn-order").style.display = "block";
+	if (location.search.search("byindex") > 0)
+		document.getElementById("index-order").style.display = "block";
 }
 </script>
 <button id="toggle-button" onClick="javascript:contentsToggle()">Switch to turn order</button>

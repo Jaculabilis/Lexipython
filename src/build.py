@@ -27,7 +27,7 @@ def build_contents_page(articles, config):
 			for article in articles}
 	# Write the articles in alphabetical order
 	content += utils.load_resource("contents.html")
-	content += "<div id=\"index-order\" style=\"display:block\">\n<ul>\n"
+	content += "<div id=\"index-order\" style=\"display:none\">\n<ul>\n"
 	indices = config["INDEX_LIST"].split("\n")
 	alphabetical_order = sorted(
 		articles,
@@ -71,6 +71,7 @@ def build_contents_page(articles, config):
 		css=css,
 		logo=config["LOGO_FILENAME"],
 		prompt=config["PROMPT"],
+		sort=config["DEFAULT_SORT"],
 		content=content,
 		citeblock="")
 
@@ -88,6 +89,7 @@ def build_rules_page(config):
 		css=css,
 		logo=config["LOGO_FILENAME"],
 		prompt=config["PROMPT"],
+		sort=config["DEFAULT_SORT"],
 		content=content,
 		citeblock="")
 
@@ -105,6 +107,7 @@ def build_formatting_page(config):
 		css=css,
 		logo=config["LOGO_FILENAME"],
 		prompt=config["PROMPT"],
+		sort=config["DEFAULT_SORT"],
 		content=content,
 		citeblock="")
 
@@ -121,6 +124,7 @@ def build_session_page(config):
 		css=css,
 		logo=config["LOGO_FILENAME"],
 		prompt=config["PROMPT"],
+		sort=config["DEFAULT_SORT"],
 		content=config["SESSION_PAGE"],
 		citeblock="")
 
@@ -251,6 +255,7 @@ def build_statistics_page(articles, config):
 		css=css,
 		logo=config["LOGO_FILENAME"],
 		prompt=config["PROMPT"],
+		sort=config["DEFAULT_SORT"],
 		content=content,
 		citeblock="")
 
@@ -352,7 +357,7 @@ def build_all(path_prefix, lexicon_name):
 	# Write the redirect page
 	print("Writing redirect page...")
 	with open(pathto("index.html"), "w", encoding="utf8") as f:
-		f.write(utils.load_resource("redirect.html").format(lexicon=config["LEXICON_TITLE"]))
+		f.write(utils.load_resource("redirect.html").format(lexicon=config["LEXICON_TITLE"], sort=config["DEFAULT_SORT"]))
 
 	# Write the article pages
 	print("Deleting old article pages...")
@@ -374,6 +379,7 @@ def build_all(path_prefix, lexicon_name):
 				css = css,
 				logo = config["LOGO_FILENAME"],
 				prompt = config["PROMPT"],
+				sort = config["DEFAULT_SORT"],
 				content = content,
 				citeblock = citeblock)
 			f.write(article_html)
