@@ -17,12 +17,12 @@ window.onload = function(){
 	if (location.search.search("byturn") > 0)
 	{
 		document.getElementById("turn-order").style.display = "block";
-		b.innerText = "Switch to index order";
+		document.getElementById("toggle-button").innerText = "Switch to index order";
 	}
 	if (location.search.search("byindex") > 0)
 	{
 		document.getElementById("index-order").style.display = "block";
-		b.innerText = "Switch to turn order";
+		document.getElementById("toggle-button").innerText = "Switch to turn order";
 	}
 }
 </script>
