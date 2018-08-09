@@ -179,7 +179,7 @@ def build_statistics_page(articles, config):
 	cited_count = defaultdict(list)
 	for title, count in cited_tally: cited_count[count].append(title)
 	content += "<br>\n".join(map(
-			lambda kv: "{0} &ndash; {1}".format(kv[0], "; ".join(kv[1])),
+			lambda kv: "{0} &ndash; {1}".format(kv[0], "; ".join(sorted(kv[1]))),
 			sorted(cited_count.items(), reverse=True)[:3]))
 	content += "</p>\n"
 	content += "</div>\n"
