@@ -182,7 +182,9 @@ class LexiconArticle:
 			"<a href=\"{1}.html\"{2}>{0}</a>".format(
 			title, utils.titleescape(title),
 			"" if title in self.wcites else " class=\"phantom\"")
-			for title in sorted(self.wcites | self.pcites)]
+			for title in sorted(
+				self.wcites | self.pcites,
+				key=lambda t: utils.titlesort(t))]
 		cites_str = " | ".join(cites_links)
 		if len(cites_str) < 1: cites_str = "&mdash;"
 		citeblock += "<p>Citations: {}</p>\n".format(cites_str)
@@ -190,7 +192,9 @@ class LexiconArticle:
 		citedby_links = [
 			"<a href=\"{1}.html\">{0}</a>".format(
 			title, utils.titleescape(title))
-			for title in self.citedby]
+			for title in sorted(
+				self.citedby,
+				key=lambda t: utils.titlesort(t))]
 		citedby_str = " | ".join(citedby_links)
 		if len(citedby_str) < 1: citedby_str = "&mdash;"
 		citeblock += "<p>Cited by: {}</p>\n</div>\n".format(citedby_str)

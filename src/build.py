@@ -160,7 +160,11 @@ def build_statistics_page(articles, config):
 	citation_count = defaultdict(list)
 	for title, count in citation_tally: citation_count[count].append(title)
 	content += "<br>\n".join(map(
-			lambda kv: "{0} &ndash; {1}".format(kv[0], "; ".join(kv[1])),
+			lambda kv: "{0} &ndash; {1}".format(
+				kv[0],
+				"; ".join(sorted(
+					kv[1],
+					key=lambda t: utils.titlesort(t)))),
 			sorted(citation_count.items(), reverse=True)[:3]))
 	content += "</p>\n"
 	content += "</div>\n"
