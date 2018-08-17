@@ -412,3 +412,14 @@ def build_all(path_prefix, lexicon_name):
 		with open(pathto(config["PRINTABLE_FILE"]), "w", encoding="utf-8") as f:
 			f.write(build_compiled_page(articles, config))
 		print("    Wrote compiled page to " + config["PRINTABLE_FILE"])
+
+	# Check that authors aren't citing themselves
+	print("Running citation checks...")
+	article_by_title = {article.title : article for article in articles}
+	for article in articles:
+		for _, tup in article.citations.items():
+			cited = article_by_title[tup[1]]
+			if article.player == cited.player:
+				print("    {2}: {0} cites {1}".format(article.title, cited.title, cited.player))
+
+	print()
