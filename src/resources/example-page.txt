@@ -1,4 +1,4 @@
-# Author: Authorname
+# Player: PN
 # Turn: 1
 # Title: Example page
 

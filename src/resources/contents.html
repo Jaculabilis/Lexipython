@@ -1,0 +1,29 @@
+<script type="text/javascript">
+contentsToggle = function() {
+	var b = document.getElementById("toggle-button");
+	var i = document.getElementById("index-order");
+	var t = document.getElementById("turn-order");
+	if (t.style.display == "none") {
+		i.style.display = "none";
+		t.style.display = "block";
+		b.innerText = "Switch to index order";
+	} else {
+		i.style.display = "block";
+		t.style.display = "none";
+		b.innerText = "Switch to turn order";
+	}
+}
+window.onload = function(){
+	if (location.search.search("byturn") > 0)
+	{
+		document.getElementById("turn-order").style.display = "block";
+		document.getElementById("toggle-button").innerText = "Switch to index order";
+	}
+	if (location.search.search("byindex") > 0)
+	{
+		document.getElementById("index-order").style.display = "block";
+		document.getElementById("toggle-button").innerText = "Switch to turn order";
+	}
+}
+</script>
+<button id="toggle-button" onClick="javascript:contentsToggle()">Switch to turn order</button>
