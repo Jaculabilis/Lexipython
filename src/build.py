@@ -372,7 +372,7 @@ def build_all(path_prefix, lexicon_name):
 	l = len(articles)
 	for idx in range(l):
 		article = articles[idx]
-		with open(pathto("article", article.title_filesafe + ".html"), "w", encoding="utf8") as f:
+		with open(pathto("article", article.title_filesafe + ".html"), "w", encoding="utf-8") as f:
 			content = article.build_default_content()
 			citeblock = article.build_default_citeblock(
 				None if idx == 0 else articles[idx - 1],
@@ -391,19 +391,19 @@ def build_all(path_prefix, lexicon_name):
 
 	# Write default pages
 	print("Writing default pages...")
-	with open(pathto("contents", "index.html"), "w", encoding="utf8") as f:
+	with open(pathto("contents", "index.html"), "w", encoding="utf-8") as f:
 		f.write(build_contents_page(articles, config))
 	print("    Wrote Contents")
-	with open(pathto("rules", "index.html"), "w", encoding="utf8") as f:
+	with open(pathto("rules", "index.html"), "w", encoding="utf-8") as f:
 		f.write(build_rules_page(config))
 	print("    Wrote Rules")
-	with open(pathto("formatting", "index.html"), "w", encoding="utf8") as f:
+	with open(pathto("formatting", "index.html"), "w", encoding="utf-8") as f:
 		f.write(build_formatting_page(config))
 	print("    Wrote Formatting")
-	with open(pathto("session", "index.html"), "w", encoding="utf8") as f:
+	with open(pathto("session", "index.html"), "w", encoding="utf-8") as f:
 		f.write(build_session_page(config))
 	print("    Wrote Session")
-	with open(pathto("statistics", "index.html"), "w", encoding="utf8") as f:
+	with open(pathto("statistics", "index.html"), "w", encoding="utf-8") as f:
 		f.write(build_statistics_page(articles, config))
 	print("    Wrote Statistics")
 

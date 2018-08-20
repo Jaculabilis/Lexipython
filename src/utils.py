@@ -38,7 +38,7 @@ def titlesort(s):
 def load_resource(filename, cache={}):
 	"""Loads files from the resources directory with caching."""
 	if filename not in cache:
-		with open(os.path.join("src", "resources", filename), "r", encoding="utf8") as f:
+		with open(os.path.join("src", "resources", filename), "r", encoding="utf-8") as f:
 			cache[filename] = f.read()
 	return cache[filename]
 
