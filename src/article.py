@@ -76,6 +76,9 @@ class LexiconArticle:
 			# Escape angle brackets
 			para = re.sub("<", "&lt;", para)
 			para = re.sub(">", "&gt;", para)
+			# Escape curly braces
+			para = re.sub("{", "&#123;", para)
+			para = re.sub("}", "&#125;", para)
 			# Replace bold and italic marks with tags
 			para = re.sub(r"//([^/]+)//", r"<i>\1</i>", para)
 			para = re.sub(r"\*\*([^*]+)\*\*", r"<b>\1</b>", para)
