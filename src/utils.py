@@ -19,8 +19,7 @@ def titleescape(s):
 	s = re.sub(r"\s+", '_', s)  # Replace whitespace with _
 	s = parse.quote(s)          # Encode all other characters
 	s = re.sub(r"%", "", s)     # Strip encoding %s
-	if len(s) > 64:             # If the result is unreasonably long,
-		s = hex(abs(hash(s)))[2:]  # Replace it with a hex hash
+	s = s[:64]                  # Limit to 64 characters
 	return s
 
 def titlesort(s):
