@@ -51,7 +51,7 @@ def load_config(name):
 		line = f.readline()
 		while line:
 			# Skim lines until a value definition begins
-			conf_match = re.match(">>>([^>]+)>>>\s+", line)
+			conf_match = re.match(r">>>([^>]+)>>>\s+", line)
 			if not conf_match:
 				line = f.readline()
 				continue
@@ -59,11 +59,11 @@ def load_config(name):
 			conf = conf_match.group(1)
 			conf_value = ""
 			line = f.readline()
-			conf_match = re.match("<<<{0}<<<\s+".format(conf), line)
+			conf_match = re.match(r"<<<{0}<<<\s+".format(conf), line)
 			while line and not conf_match:
 				conf_value += line
 				line = f.readline()
-				conf_match = re.match("<<<{0}<<<\s+".format(conf), line)
+				conf_match = re.match(r"<<<{0}<<<\s+".format(conf), line)
 			if not line:
 				# TODO Not this
 				raise SystemExit("Reached EOF while reading config value {}".format(conf))

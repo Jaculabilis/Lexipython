@@ -143,7 +143,8 @@ class LexiconArticle:
 				target = cite_tuple[1]
 				# Create article objects for phantom citations
 				if target not in article_by_title:
-					article_by_title[target] = LexiconArticle(None, sys.maxsize, target, "<p><i>This entry hasn't been written yet.</i></p>", {})
+					article_by_title[target] = LexiconArticle(None, sys.maxsize, target,
+						"<p><i>This entry hasn't been written yet.</i></p>", {})
 				# Interlink citations
 				if article_by_title[target].player is None:
 					article.pcites.add(target)
