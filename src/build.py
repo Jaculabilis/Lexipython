@@ -51,7 +51,7 @@ def build_contents_page(articles, config):
 		articles,
 		key=lambda a: (a.turn, utils.titlesort(a.title)))
 	check_off = list(turn_order)
-	for turn_num in range(1, latest_turn + 1):
+	for turn_num in range(0, latest_turn + 1):
 		content += "<h3>Turn {0}</h3>\n".format(turn_num)
 		for article in turn_order:
 			if article.turn == turn_num:
