@@ -206,6 +206,10 @@ def build_statistics_page(articles, config):
 	content += "</p>\n"
 	content += "</div>\n"
 
+	content += "<div class=\"moveable\">\n"
+	content += "<p><u>Total word count:</u><br>\n"
+	content += str(sum(article_length.values())) + "</p>"
+
 	# Player pageranks
 	content += "<div class=\"moveable\">\n"
 	content += "<p><u>Player total page rank:</u><br>\n"
