@@ -46,12 +46,13 @@ def build_contents_page(articles, config):
 	content += "</ul>\n</div>\n"
 	# Write the articles in turn order
 	content += "<div id=\"turn-order\" style=\"display:none\">\n<ul>\n"
-	latest_turn = max([article.turn for article in articles if article.player is not None])
+	turn_numbers = [article.turn for article in articles if article.player is not None]
+	first_turn, last_turn = min(turn_numbers), max(turn_numbers)
 	turn_order = sorted(
 		articles,
 		key=lambda a: (a.turn, utils.titlesort(a.title)))
 	check_off = list(turn_order)
-	for turn_num in range(0, latest_turn + 1):
+	for turn_num in range(first_turn, last_turn + 1):
 		content += "<h3>Turn {0}</h3>\n".format(turn_num)
 		for article in turn_order:
 			if article.turn == turn_num:
