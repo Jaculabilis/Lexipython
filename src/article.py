@@ -76,6 +76,9 @@ class LexiconArticle:
 			# Escape angle brackets
 			para = re.sub("<", "&lt;", para)
 			para = re.sub(">", "&gt;", para)
+			# Escape curly braces
+			para = re.sub("{", "&#123;", para)
+			para = re.sub("}", "&#125;", para)
 			# Replace bold and italic marks with tags
 			para = re.sub(r"//([^/]+)//", r"<i>\1</i>", para)
 			para = re.sub(r"\*\*([^*]+)\*\*", r"<b>\1</b>", para)
@@ -140,7 +143,8 @@ class LexiconArticle:
 				target = cite_tuple[1]
 				# Create article objects for phantom citations
 				if target not in article_by_title:
-					article_by_title[target] = LexiconArticle(None, sys.maxsize, target, "<p><i>This entry hasn't been written yet.</i></p>", {})
+					article_by_title[target] = LexiconArticle(None, sys.maxsize, target,
+						"<p><i>This entry hasn't been written yet.</i></p>", {})
 				# Interlink citations
 				if article_by_title[target].player is None:
 					article.pcites.add(target)
