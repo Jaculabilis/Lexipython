@@ -1,3 +1,4 @@
+<div class="contentblock">
 <p>Lexipython provides support for a limited amount of Markdown-esque formatting.</p>
 <pre style="background:#eeeeee">
 # Player: PN
@@ -7,17 +8,50 @@
 This is an example page.
 Some words are //italicized//,
 and some words are **bolded**.
-All of these sentences are part of the same paragraph.
+All of these sentences are part of the same
+paragraph.
 
 This is a new paragraph.\\
-Unlike the last paragraph, this line will be after a line break within the paragraph.
+Unlike the last paragraph, this line will be after a
+line break within the paragraph.
 
-This is an [[example citation|Phantom page]]. You can also cite a [[phantom page]] with just the title.
+This is an [[example citation|Phantom page]]. You can
+also cite a [[phantom page]] with just the title.
 
 ~Dr. X. Amplepage
 </pre>
-<p>Each turn, fill out the header with your player information, the  current turn, and the title of your entry. The <i>Player</i> field can be anything as long as it's the same for all articles you write (even when they're by different characters). Using your initials is recommended.</p>
-<p>Two line breaks begins a new paragraph. A single line break does nothing, unless the line is ended by a double backslash (\\).</p>
-<p>Text bounded by ** will be bolded: **bold** produces <b>bold</b>. Text bounded by // will be italicized: //italics// produces <i>italics</i>.</p>
-<p>To cite another Lexicon entry, use double brackets. Text in double brackets will cite and link to the entry of the same name: [[Example page]] produces <a href="Example_page.html" class="phantom">Example page</a>. Text in double brackets split with a | will alias the link as the left text and link to the entry with the name of the right text: [[this text|Example page]] produces <a href="Example_page.html" class="phantom">this text</a>. <b>You must be precise in the entry title you cite to.</b> Citations to "Example" vs. "The Example" will point to different entries and create different phantoms, and your GM will probably have to clean up after you.</p>
-<p>Beginning a paragraph with ~ will right-align it and place a horizontal line above it. Use this for signing your entry with your scholar's name.</p>
+<p>Each turn, fill out the header with your player information, the  current
+	turn, and the title of your entry. The <i>Player</i> field can be anything
+	as long as it's the same for all articles you write (even when they're by
+	different characters). Using your initials is recommended.</p>
+<p>Two line breaks begins a new paragraph. A single line break does nothing,
+	unless the line is ended by a double backslash (\\).</p>
+<p>Text bounded by ** will be bolded: **bold** produces <b>bold</b>. Text
+	bounded by // will be italicized: //italics// produces <i>italics</i>.</p>
+<p>To cite another Lexicon entry, use double brackets. Text in double brackets
+	will cite and link to the entry of the same name: [[Example page]] produces
+	<a href="Example_page.html" class="phantom">Example page</a>. Text in
+	double brackets split with a | will alias the link as the left text and
+	link to the entry with the name of the right text: [[this text|Example page]]
+	produces <a href="Example_page.html" class="phantom">this text</a>. <b>You
+		must be precise in the entry title you cite to.</b> Citations to
+		"Example" vs. "The Example" will point to different entries and create
+		different phantoms, and your GM will probably have to clean up after
+		you.</p>
+<p>Beginning a paragraph with ~ will right-align it and place a horizontal line
+	above it. Use this for signing your entry with your scholar's name.</p>
+</div>
+<div class="contentblock">
+<h1>Example page</h1>
+<p>This is an example page.
+Some words are <i>italicized</i>,
+and some words are <b>bolded</b>.
+All of these sentences are part of the same
+paragraph.</p>
+<p>This is a new paragraph.<br>
+Unlike the last paragraph, this line will be after a
+line break within the paragraph.</p>
+<p>This is an <a href="Phantom_page.html" class="phantom">example citation</a>. You can
+	also cite a <a href="Phantom_page.html" class="phantom">phantom page</a> with just the title.</p>
+<hr><span class="signature"><p>Dr. X. Amplepage</p></span>
+</div>

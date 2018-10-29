@@ -8,17 +8,37 @@ from collections import defaultdict # For rank inversion in statistics
 from src import utils
 from src.article import LexiconArticle
 
-def build_contents_page(articles, config):
+class LexiconPage:
+	"""
+	An abstraction layer around formatting a Lexicon page skeleton with kwargs
+	so that kwargs that are constant across pages aren't repeated.
+	"""
+
+	def __init__(self, skeleton=None, page=None):
+		self.kwargs = {}
+		self.skeleton = skeleton
+		if page is not None:
+			self.skeleton = page.skeleton
+			self.kwargs = dict(page.kwargs)
+
+	def add_kwargs(self, **kwargs):
+		self.kwargs.update(kwargs)
+
+	def format(self, **kwargs):
+		total_kwargs = {**self.kwargs, **kwargs}
+		return self.skeleton.format(**total_kwargs)
+
+def build_contents_page(page, articles, index_list):
 	"""
 	Builds the full HTML of the contents page.
 	"""
-	content = ""
+	content = "<div class=\"contentblock\">"
 	# Head the contents page with counts of written and phantom articles
 	phantom_count = len([article for article in articles if article.player is None])
 	if phantom_count == 0:
-		content = "<p>There are <b>{0}</b> entries in this lexicon.</p>\n".format(len(articles))
+		content += "<p>There are <b>{0}</b> entries in this lexicon.</p>\n".format(len(articles))
 	else:
-		content = "<p>There are <b>{0}</b> entries, <b>{1}</b> written and <b>{2}</b> phantom.</p>\n".format(
+		content += "<p>There are <b>{0}</b> entries, <b>{1}</b> written and <b>{2}</b> phantom.</p>\n".format(
 			len(articles), len(articles) - phantom_count, phantom_count)
 	# Prepare article links
 	link_by_title = {article.title : "<a href=\"../article/{1}.html\"{2}>{0}</a>".format(
@@ -28,7 +48,7 @@ def build_contents_page(articles, config):
 	# Write the articles in alphabetical order
 	content += utils.load_resource("contents.html")
 	content += "<div id=\"index-order\" style=\"display:none\">\n<ul>\n"
-	indices = config["INDEX_LIST"].split("\n")
+	indices = index_list.split("\n")
 	alphabetical_order = sorted(
 		articles,
 		key=lambda a: utils.titlesort(a.title))
@@ -64,70 +84,31 @@ def build_contents_page(articles, config):
 			content += "<li>{}</li>\n".format(link_by_title[article.title])
 	content += "</ul>\n</div>\n"
 	# Fill in the page skeleton
-	entry_skeleton = utils.load_resource("entry-page.html")
-	css = utils.load_resource("lexicon.css")
-	return entry_skeleton.format(
-		title="Index of " + config["LEXICON_TITLE"],
-		lexicon=config["LEXICON_TITLE"],
-		css=css,
-		logo=config["LOGO_FILENAME"],
-		prompt=config["PROMPT"],
-		sort=config["DEFAULT_SORT"],
-		content=content,
-		citeblock="")
+	return page.format(title="Index", content=content)
 
-def build_rules_page(config):
+def build_rules_page(page):
 	"""
 	Builds the full HTML of the rules page.
 	"""
 	content = utils.load_resource("rules.html")
 	# Fill in the entry skeleton
-	entry_skeleton = utils.load_resource("entry-page.html")
-	css = utils.load_resource("lexicon.css")
-	return entry_skeleton.format(
-		title="Rules",
-		lexicon=config["LEXICON_TITLE"],
-		css=css,
-		logo=config["LOGO_FILENAME"],
-		prompt=config["PROMPT"],
-		sort=config["DEFAULT_SORT"],
-		content=content,
-		citeblock="")
+	return page.format(title="Rules", content=content)
 
-def build_formatting_page(config):
+def build_formatting_page(page):
 	"""
 	Builds the full HTML of the formatting page.
 	"""
 	content = utils.load_resource("formatting.html")
 	# Fill in the entry skeleton
-	entry_skeleton = utils.load_resource("entry-page.html")
-	css = utils.load_resource("lexicon.css")
-	return entry_skeleton.format(
-		title="Formatting",
-		lexicon=config["LEXICON_TITLE"],
-		css=css,
-		logo=config["LOGO_FILENAME"],
-		prompt=config["PROMPT"],
-		sort=config["DEFAULT_SORT"],
-		content=content,
-		citeblock="")
+	return page.format(title="Formatting", content=content)
 
-def build_session_page(config):
+def build_session_page(page, session_content):
 	"""
 	Builds the full HTML of the session page.
 	"""
 	# Fill in the entry skeleton
-	entry_skeleton = utils.load_resource("entry-page.html")
-	css = utils.load_resource("lexicon.css")
-	return entry_skeleton.format(
-		title=config["LEXICON_TITLE"],
-		lexicon=config["LEXICON_TITLE"],
-		css=css,
-		logo=config["LOGO_FILENAME"],
-		prompt=config["PROMPT"],
-		sort=config["DEFAULT_SORT"],
-		content=config["SESSION_PAGE"],
-		citeblock="")
+	content = "<div class=\"contentblock\">{}</div>".format(session_content)
+	return page.format(title="Session", content=content)
 
 def reverse_statistics_dict(stats, reverse=True):
 	"""
@@ -147,7 +128,7 @@ def reverse_statistics_dict(stats, reverse=True):
 def itemize(stats_list):
 	return map(lambda x: "{0} &ndash; {1}".format(x[0], "; ".join(x[1])), stats_list)
 
-def build_statistics_page(articles, config):
+def build_statistics_page(page, articles):
 	"""
 	Builds the full HTML of the statistics page.
 	"""
@@ -174,19 +155,19 @@ def build_statistics_page(articles, config):
 	# Format the ranks into strings
 	top_ranked_items = itemize(top_ranked)
 	# Write the statistics to the page
-	content += "<div class=\"moveable\">\n"
-	content += "<p><u>Top 10 pages by page rank:</u><br>\n"
+	content += "<div class=\"contentblock\">\n"
+	content += "<u>Top 10 pages by page rank:</u><br>\n"
 	content += "<br>\n".join(top_ranked_items)
-	content += "</p>\n</div>\n"
+	content += "</div>\n"
 
 	# Top number of citations made
 	citations_made = { title : len(cites) for title, cites in cite_map.items() }
 	top_citations = reverse_statistics_dict(citations_made)[:3]
 	top_citations_items = itemize(top_citations)
-	content += "<div class=\"moveable\">\n"
-	content += "<p><u>Most citations made from:</u><br>\n"
+	content += "<div class=\"contentblock\">\n"
+	content += "<u>Most citations made from:</u><br>\n"
 	content += "<br>\n".join(top_citations_items)
-	content += "</p>\n</div>\n"
+	content += "</div>\n"
 
 	# Top number of times cited
 	# Build a map of what cites each article
@@ -201,10 +182,10 @@ def build_statistics_page(articles, config):
 	citations_to = { title : len(cites) for title, cites in cited_by_map.items() }
 	top_cited = reverse_statistics_dict(citations_to)[:3]
 	top_cited_items = itemize(top_cited)
-	content += "<div class=\"moveable\">\n"
-	content += "<p><u>Most citations made to:</u><br>\n"
+	content += "<div class=\"contentblock\">\n"
+	content += "<u>Most citations made to:</u><br>\n"
 	content += "<br>\n".join(top_cited_items)
-	content += "</p>\n</div>\n"
+	content += "</div>\n"
 
 	# Top article length, roughly by words
 	article_length = {}
@@ -218,16 +199,16 @@ def build_statistics_page(articles, config):
 		article_length[article.title] = wordcount
 	top_length = reverse_statistics_dict(article_length)[:3]
 	top_length_items = itemize(top_length)
-	content += "<div class=\"moveable\">\n"
-	content += "<p><u>Longest article:</u><br>\n"
+	content += "<div class=\"contentblock\">\n"
+	content += "<u>Longest article:</u><br>\n"
 	content += "<br>\n".join(top_length_items)
-	content += "</p>\n</div>\n"
+	content += "</div>\n"
 
 	# Total word count
-	content += "<div class=\"moveable\">\n"
-	content += "<p><u>Total word count:</u><br>\n"
-	content += str(sum(article_length.values())) + "</p>"
-	content += "</p>\n</div>\n"
+	content += "<div class=\"contentblock\">\n"
+	content += "<u>Total word count:</u><br>\n"
+	content += str(sum(article_length.values()))
+	content += "</div>\n"
 
 	# Player pageranks
 	players = sorted(set([article.player for article in articles if article.player is not None]))
@@ -247,10 +228,10 @@ def build_statistics_page(articles, config):
 		in articles_by_player.items()}
 	player_rank = reverse_statistics_dict(pagerank_by_player)
 	player_rank_items = itemize(player_rank)
-	content += "<div class=\"moveable\">\n"
-	content += "<p><u>Player total page rank:</u><br>\n"
+	content += "<div class=\"contentblock\">\n"
+	content += "<u>Player total page rank:</u><br>\n"
 	content += "<br>\n".join(player_rank_items)
-	content += "</p>\n</div>\n"
+	content += "</div>\n"
 
 	# Player citations made
 	player_cite_count = {
@@ -258,10 +239,10 @@ def build_statistics_page(articles, config):
 		for player, articles in articles_by_player.items()}
 	player_cites_made_ranks = reverse_statistics_dict(player_cite_count)
 	player_cites_made_items = itemize(player_cites_made_ranks)
-	content += "<div class=\"moveable\">\n"
-	content += "<p><u>Citations made by player</u><br>\n"
+	content += "<div class=\"contentblock\">\n"
+	content += "<u>Citations made by player</u><br>\n"
 	content += "<br>\n".join(player_cites_made_items)
-	content += "</p>\n</div>\n"
+	content += "</div>\n"
 
 	# Player cited count
 	cited_times = {player : 0 for player in players}
@@ -270,23 +251,13 @@ def build_statistics_page(articles, config):
 			cited_times[article.player] += len(article.citedby)
 	cited_times_ranked = reverse_statistics_dict(cited_times)
 	cited_times_items = itemize(cited_times_ranked)
-	content += "<div class=\"moveable\">\n"
-	content += "<p><u>Citations made to player</u><br>\n"
+	content += "<div class=\"contentblock\">\n"
+	content += "<u>Citations made to player</u><br>\n"
 	content += "<br>\n".join(cited_times_items)
-	content += "</p>\n</div>\n"
+	content += "</div>\n"
 
 	# Fill in the entry skeleton
-	entry_skeleton = utils.load_resource("entry-page.html")
-	css = utils.load_resource("lexicon.css")
-	return entry_skeleton.format(
-		title="Statistics",
-		lexicon=config["LEXICON_TITLE"],
-		css=css,
-		logo=config["LOGO_FILENAME"],
-		prompt=config["PROMPT"],
-		sort=config["DEFAULT_SORT"],
-		content=content,
-		citeblock="")
+	return page.format(title="Statistics", content=content)
 
 def build_graphviz_file(cite_map):
 	"""
@@ -367,26 +338,29 @@ def build_all(path_prefix, lexicon_name):
 	lex_path = os.path.join(path_prefix, lexicon_name)
 	# Load the Lexicon's peripherals
 	config = utils.load_config(lexicon_name)
-	entry_skeleton = utils.load_resource("entry-page.html")
-	css = utils.load_resource("lexicon.css")
+	page_skeleton = utils.load_resource("page-skeleton.html")
+	page = LexiconPage(skeleton=page_skeleton)
+	page.add_kwargs(
+		lexicon=config["LEXICON_TITLE"],
+		logo=config["LOGO_FILENAME"],
+		prompt=config["PROMPT"],
+		sort=config["DEFAULT_SORT"])
 	# Parse the written articles
 	articles = LexiconArticle.parse_from_directory(os.path.join(lex_path, "src"))
-	# At this point, the articles haven't been cross-populated,
-	# so we can derive the written titles from this list
-	#written_titles = [article.title for article in articles]
 	# Once they've been populated, the articles list has the titles of all articles
 	# Sort this by turn before title so prev/next links run in turn order
 	articles = sorted(
 		LexiconArticle.populate(articles),
 		key=lambda a: (a.turn, utils.titlesort(a.title)))
-	#phantom_titles = [article.title for article in articles if article.title not in written_titles]
+
 	def pathto(*els):
 		return os.path.join(lex_path, *els)
 
 	# Write the redirect page
 	print("Writing redirect page...")
 	with open(pathto("index.html"), "w", encoding="utf8") as f:
-		f.write(utils.load_resource("redirect.html").format(lexicon=config["LEXICON_TITLE"], sort=config["DEFAULT_SORT"]))
+		f.write(utils.load_resource("redirect.html").format(
+			lexicon=config["LEXICON_TITLE"], sort=config["DEFAULT_SORT"]))
 
 	# Write the article pages
 	print("Deleting old article pages...")
@@ -398,38 +372,32 @@ def build_all(path_prefix, lexicon_name):
 	for idx in range(l):
 		article = articles[idx]
 		with open(pathto("article", article.title_filesafe + ".html"), "w", encoding="utf-8") as f:
-			content = article.build_default_content()
+			contentblock = article.build_default_contentblock()
 			citeblock = article.build_default_citeblock(
 				None if idx == 0 else articles[idx - 1],
 				None if idx == l-1 else articles[idx + 1])
-			article_html = entry_skeleton.format(
+			article_html = page.format(
 				title = article.title,
-				lexicon = config["LEXICON_TITLE"],
-				css = css,
-				logo = config["LOGO_FILENAME"],
-				prompt = config["PROMPT"],
-				sort = config["DEFAULT_SORT"],
-				content = content,
-				citeblock = citeblock)
+				content = contentblock + citeblock)
 			f.write(article_html)
 		print("    Wrote " + article.title)
 
 	# Write default pages
 	print("Writing default pages...")
 	with open(pathto("contents", "index.html"), "w", encoding="utf-8") as f:
-		f.write(build_contents_page(articles, config))
+		f.write(build_contents_page(page, articles, config["INDEX_LIST"]))
 	print("    Wrote Contents")
 	with open(pathto("rules", "index.html"), "w", encoding="utf-8") as f:
-		f.write(build_rules_page(config))
+		f.write(build_rules_page(page))
 	print("    Wrote Rules")
 	with open(pathto("formatting", "index.html"), "w", encoding="utf-8") as f:
-		f.write(build_formatting_page(config))
+		f.write(build_formatting_page(page))
 	print("    Wrote Formatting")
 	with open(pathto("session", "index.html"), "w", encoding="utf-8") as f:
-		f.write(build_session_page(config))
+		f.write(build_session_page(page, config["SESSION_PAGE"]))
 	print("    Wrote Session")
 	with open(pathto("statistics", "index.html"), "w", encoding="utf-8") as f:
-		f.write(build_statistics_page(articles, config))
+		f.write(build_statistics_page(page, articles))
 	print("    Wrote Statistics")
 
 	# Write auxiliary pages

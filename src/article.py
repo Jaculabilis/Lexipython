@@ -153,7 +153,7 @@ class LexiconArticle:
 				article_by_title[target].citedby.add(article.title)
 		return list(article_by_title.values())
 
-	def build_default_content(self):
+	def build_default_contentblock(self):
 		"""
 		Formats citations into the article content as normal HTML links
 		and returns the result.
@@ -164,23 +164,29 @@ class LexiconArticle:
 			"" if cite_tuple[1] in self.wcites else " class=\"phantom\"")
 			for format_id, cite_tuple in self.citations.items()
 		}
-		return self.content.format(**format_map)
+		article_content = self.content.format(**format_map)
+		return "<div class=\"contentblock\">\n<h1>{}</h1>\n{}</div>\n".format(
+			self.title,
+			article_content)
 
 	def build_default_citeblock(self, prev_article, next_article):
 		"""
 		Builds the citeblock content HTML for use in regular article pages.
 		For each defined target, links the target page as Previous or Next.
 		"""
-		citeblock = "<div class=\"content citeblock\">\n"
-		# Prev/next links
-		if next_article is not None:
-			citeblock += "<p style=\"float:right\"><a href=\"{}.html\"{}>Next &#8594;</a></p>\n".format(
-				next_article.title_filesafe, " class=\"phantom\"" if next_article.player is None else "")
-		if prev_article is not None:
-			citeblock += "<p><a href=\"{}.html\"{}>&#8592; Previous</a></p>\n".format(
-				prev_article.title_filesafe, " class=\"phantom\"" if prev_article.player is None else "")
-		if next_article is None and prev_article is None:
-			citeblock += "<p>&nbsp;</p>\n"
+		citeblock = "<div class=\"contentblock citeblock\">\n"
+		# Prev/next links:
+		if next_article is not None or prev_article is not None:
+			prev_link = ("<a href=\"{}.html\"{}>&#8592; Previous</a>".format(
+				prev_article.title_filesafe,
+				" class=\"phantom\"" if prev_article.player is None else "")
+				if prev_article is not None else "")
+			next_link = ("<a href=\"{}.html\"{}>Next &#8594;</a>".format(
+				next_article.title_filesafe,
+				" class=\"phantom\"" if next_article.player is None else "")
+				if next_article is not None else "")
+			citeblock += "<table><tr>\n<td>{}</td>\n<td>{}</td>\n</table></tr>\n".format(
+				prev_link, next_link)
 		# Citations
 		cites_links = [
 			"<a href=\"{1}.html\"{2}>{0}</a>".format(
@@ -189,7 +195,7 @@ class LexiconArticle:
 			for title in sorted(
 				self.wcites | self.pcites,
 				key=lambda t: utils.titlesort(t))]
-		cites_str = " | ".join(cites_links)
+		cites_str = " / ".join(cites_links)
 		if len(cites_str) < 1: cites_str = "&mdash;"
 		citeblock += "<p>Citations: {}</p>\n".format(cites_str)
 		# Citedby
@@ -199,7 +205,7 @@ class LexiconArticle:
 			for title in sorted(
 				self.citedby,
 				key=lambda t: utils.titlesort(t))]
-		citedby_str = " | ".join(citedby_links)
+		citedby_str = " / ".join(citedby_links)
 		if len(citedby_str) < 1: citedby_str = "&mdash;"
 		citeblock += "<p>Cited by: {}</p>\n</div>\n".format(citedby_str)
 		return citeblock
