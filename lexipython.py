@@ -138,6 +138,9 @@ def command_init(name):
 	# Create the Lexicon's config file
 	with open(os.path.join(lex_path, "lexicon.cfg"), "w") as config_file:
 		config_file.write(config)
+	# Copy the CSS file
+	with open(os.path.join(lex_path, "lexicon.css"), "w") as css_file:
+		css_file.write(utils.load_resource("lexicon.css"))
 	# Create an example page
 	with open(os.path.join(lex_path, "src", "example-page.txt"), "w") as destfile:
 		destfile.write(utils.load_resource("example-page.txt"))
