@@ -133,20 +133,13 @@ def build_statistics_page(page, articles):
 	Builds the full HTML of the statistics page.
 	"""
 	content = ""
-	cite_map = {
-		article.title : [
-			cite_tuple[1]
-			for cite_tuple
-			in article.citations.values()
-		]
-		for article in articles}
 
 	# Top pages by pagerank
 	# Compute pagerank for each article
 	G = networkx.Graph()
-	for citer, citeds in cite_map.items():
-		for cited in citeds:
-			G.add_edge(citer, cited)
+	for article in articles:
+		for citation in article.citations:
+			G.add_edge(article.title, citation.target)
 	rank_by_article = networkx.pagerank(G)
 	# Get the top ten articles by pagerank
 	top_pageranks = reverse_statistics_dict(rank_by_article)[:10]
@@ -156,34 +149,25 @@ def build_statistics_page(page, articles):
 	top_ranked_items = itemize(top_ranked)
 	# Write the statistics to the page
 	content += "<div class=\"contentblock\">\n"
-	content += "<u>Top 10 pages by page rank:</u><br>\n"
+	content += "<u>Top 10 articles by page rank:</u><br>\n"
 	content += "<br>\n".join(top_ranked_items)
 	content += "</div>\n"
 
 	# Top number of citations made
-	citations_made = { title : len(cites) for title, cites in cite_map.items() }
+	citations_made = {article.title : len(article.citations) for article in articles}
 	top_citations = reverse_statistics_dict(citations_made)[:3]
 	top_citations_items = itemize(top_citations)
 	content += "<div class=\"contentblock\">\n"
-	content += "<u>Most citations made from:</u><br>\n"
+	content += "<u>Top articles by citations made:</u><br>\n"
 	content += "<br>\n".join(top_citations_items)
 	content += "</div>\n"
 
 	# Top number of times cited
-	# Build a map of what cites each article
-	all_cited = set([title for citeds in cite_map.values() for title in citeds])
-	cited_by_map = {
-		cited: [
-			citer
-			for citer in cite_map.keys()
-			if cited in cite_map[citer]]
-		for cited in all_cited }
-	# Compute the number of citations to each article
-	citations_to = { title : len(cites) for title, cites in cited_by_map.items() }
+	citations_to = {article.title : len(article.citedby) for article in articles}
 	top_cited = reverse_statistics_dict(citations_to)[:3]
 	top_cited_items = itemize(top_cited)
 	content += "<div class=\"contentblock\">\n"
-	content += "<u>Most citations made to:</u><br>\n"
+	content += "<u>Most cited articles:</u><br>\n"
 	content += "<br>\n".join(top_cited_items)
 	content += "</div>\n"
 
@@ -191,16 +175,15 @@ def build_statistics_page(page, articles):
 	article_length = {}
 	for article in articles:
 		format_map = {
-			format_id: cite_tuple[0]
-			for format_id, cite_tuple in article.citations.items()
+			"c"+str(c.id): c.text
+			for c in article.citations
 		}
 		plain_content = article.content.format(**format_map)
-		wordcount = len(plain_content.split())
-		article_length[article.title] = wordcount
+		article_length[article.title] = len(plain_content.split())
 	top_length = reverse_statistics_dict(article_length)[:3]
 	top_length_items = itemize(top_length)
 	content += "<div class=\"contentblock\">\n"
-	content += "<u>Longest article:</u><br>\n"
+	content += "<u>Longest articles:</u><br>\n"
 	content += "<br>\n".join(top_length_items)
 	content += "</div>\n"
 
@@ -211,21 +194,23 @@ def build_statistics_page(page, articles):
 	content += "</div>\n"
 
 	# Player pageranks
+	# Add addendums and recompute pagerank
+	for article in articles:
+		for addendum in article.addendums:
+			for citation in addendum.citations:
+				addendum_title = "{0.title}-T{0.turn}".format(addendum)
+				G.add_edge(addendum_title, citation.target)
+	rank_by_article = networkx.pagerank(G)
 	players = sorted(set([article.player for article in articles if article.player is not None]))
-	articles_by_player = {
-		player : [
-			a
-			for a in articles
-			if a.player == player]
-		for player in players}
-	pagerank_by_player = {
-		player : round(
-			sum(map(
-				lambda a: rank_by_article[a.title] if a.title in rank_by_article else 0,
-				articles)),
-			3)
-		for player, articles
-		in articles_by_player.items()}
+	pagerank_by_player = {player: 0 for player in players}
+	for article in articles:
+		if article.player is not None:
+			pagerank_by_player[article.player] += rank_by_article[article.title]
+			for addendum in article.addendums:
+				addendum_title = "{0.title}-T{0.turn}".format(addendum)
+				pagerank_by_player[addendum_title] += rank_by_article[addendum_title]
+	for player in players:
+		pagerank_by_player[player] = round(pagerank_by_player[player], 3)
 	player_rank = reverse_statistics_dict(pagerank_by_player)
 	player_rank_items = itemize(player_rank)
 	content += "<div class=\"contentblock\">\n"
@@ -234,13 +219,17 @@ def build_statistics_page(page, articles):
 	content += "</div>\n"
 
 	# Player citations made
-	player_cite_count = {
-		player : sum(map(lambda a:len(a.wcites | a.pcites), articles))
-		for player, articles in articles_by_player.items()}
-	player_cites_made_ranks = reverse_statistics_dict(player_cite_count)
+	cite_count_by_player = {player: 0 for player in players}
+	for article in articles:
+		if article.player is not None:
+			unique_citations = set([a.target for a in article.citations])
+			cite_count_by_player[article.player] += len(unique_citations)
+			for addendum in article.addendums:
+				cite_count_by_player[addendum.player] += len(addendum.citations)
+	player_cites_made_ranks = reverse_statistics_dict(cite_count_by_player)
 	player_cites_made_items = itemize(player_cites_made_ranks)
 	content += "<div class=\"contentblock\">\n"
-	content += "<u>Citations made by player</u><br>\n"
+	content += "<u>Citations made by player:</u><br>\n"
 	content += "<br>\n".join(player_cites_made_items)
 	content += "</div>\n"
 
@@ -252,7 +241,7 @@ def build_statistics_page(page, articles):
 	cited_times_ranked = reverse_statistics_dict(cited_times)
 	cited_times_items = itemize(cited_times_ranked)
 	content += "<div class=\"contentblock\">\n"
-	content += "<u>Citations made to player</u><br>\n"
+	content += "<u>Citations made to player:</u><br>\n"
 	content += "<br>\n".join(cited_times_items)
 	content += "</div>\n"
 
@@ -350,7 +339,7 @@ def build_all(path_prefix, lexicon_name):
 	# Once they've been populated, the articles list has the titles of all articles
 	# Sort this by turn before title so prev/next links run in turn order
 	articles = sorted(
-		LexiconArticle.populate(articles),
+		LexiconArticle.interlink(articles),
 		key=lambda a: (a.turn, utils.titlesort(a.title)))
 
 	def pathto(*els):
@@ -372,13 +361,14 @@ def build_all(path_prefix, lexicon_name):
 	for idx in range(l):
 		article = articles[idx]
 		with open(pathto("article", article.title_filesafe + ".html"), "w", encoding="utf-8") as f:
-			contentblock = article.build_default_contentblock()
-			citeblock = article.build_default_citeblock(
-				None if idx == 0 else articles[idx - 1],
-				None if idx == l-1 else articles[idx + 1])
+			content = article.build_default_content()
+			#contentblock = article.build_default_contentblock()
+			#citeblock = article.build_default_citeblock(
+			#	None if idx == 0 else articles[idx - 1],
+			#	None if idx == l-1 else articles[idx + 1])
 			article_html = page.format(
 				title = article.title,
-				content = contentblock + citeblock)
+				content = content)
 			f.write(article_html)
 		print("    Wrote " + article.title)
 
@@ -409,10 +399,10 @@ def build_all(path_prefix, lexicon_name):
 	# Check that authors aren't citing themselves
 	print("Running citation checks...")
 	article_by_title = {article.title : article for article in articles}
-	for article in articles:
-		for _, tup in article.citations.items():
-			cited = article_by_title[tup[1]]
-			if article.player == cited.player:
-				print("    {2}: {0} cites {1}".format(article.title, cited.title, cited.player))
+	#for article in articles:
+	#	for _, tup in article.citations.items():
+	#		cited = article_by_title[tup[1]]
+	#		if article.player == cited.player:
+	#			print("    {2}: {0} cites {1}".format(article.title, cited.title, cited.player))
 
 	print()

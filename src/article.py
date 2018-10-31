@@ -3,21 +3,50 @@ import sys
 import re
 import src.utils as utils
 
+class LexiconCitation:
+	"""
+	Represents information about a single citation in a Lexicon article.
+
+	Members:
+	id          int: citation id within the article, corresponding to a "{cN}"
+	            format hook
+	text        string: alias text linked to the citation target
+	target      string: title of the article being cited
+	article     LexiconArticle: article cited, None until interlink
+	"""
+	def __init__(self, id, citation_text, citation_target, article=None):
+		self.id = id
+		self.text = citation_text
+		self.target = citation_target
+		self.article = article
+
+	def __repr__(self):
+		return "<LexiconCitation(id={0.id}, text=\"{0.text}\", target=\"{0.target}\")>".format(self)
+
+	def __str__(self):
+		return "<[{0.id}]:[[{0.text}|{0.target}]]>".format(self)
+
+	def format(self, format_str):
+		return format_str.format(**self.__dict__)
+
 class LexiconArticle:
 	"""
 	A Lexicon article and its metadata.
 	
-	Members:
-	player          string: the player of the article
-	turn            integer: the turn the article was written for
-	title           string: the article title
-	title_filesafe  string: the title, escaped, used for filenames
-	content         string: the HTML content, with citations replaced by format hooks
-	citations       dict mapping format hook string to tuple of link alias and link target title
-	wcites          list: titles of written articles cited
-	pcites          list: titles of phantom articles cited
-	citedby         list: titles of articles that cite this
-	The last three are filled in by populate().
+	Members defined by __init__:
+	player          string: player who wrote the article
+	turn            integer: turn the article was written for
+	title           string: article title
+	title_filesafe  string: title, escaped, used for filenames
+	content         string: HTML content, with citations replaced by format hooks
+	citations       list of LexiconCitations: citations made by the article
+	link_class      string: CSS class to interpolate (for styling phantoms)
+
+	Members undefined until interlink:
+	addendums       list of LexiconArticles: addendum articles to this article
+	citedby         set of LexiconArticles: articles that cite this article
+	prev_article    LexiconArticle: the previous article in read order
+	next_article    LexiconArticle: the next article in read order
 	"""
 
 	def __init__(self, player, turn, title, content, citations):
@@ -30,9 +59,17 @@ class LexiconArticle:
 		self.title_filesafe = utils.titleescape(title)
 		self.content = content
 		self.citations = citations
-		self.wcites = set()
-		self.pcites = set()
+		self.link_class = "class=\"phantom\"" if player is None else ""
+		self.addendums = []
 		self.citedby = set()
+		self.prev_article = None
+		self.next_article = None
+
+	def __repr__(self):
+		return "<LexiconArticle(title={0.title}, turn={0.turn}, player={0.player})>".format(self)
+
+	def __str__(self):
+		return "<\"{0.title}\", {0.player} turn {0.turn}>".format(self)
 
 	@staticmethod
 	def from_file_raw(raw_content):
@@ -68,7 +105,7 @@ class LexiconArticle:
 		# Parse the content and extract citations
 		paras = re.split("\n\n+", content_raw.strip())
 		content = ""
-		citations = {}
+		citations = []
 		format_id = 1
 		if not paras:
 			print("No content")
@@ -91,7 +128,8 @@ class LexiconArticle:
 				cite_text = link_match.group(2) if link_match.group(2) else link_match.group(3)
 				cite_title = utils.titlecase(re.sub(r"\s+", " ", link_match.group(3)))
 				# Record the citation
-				citations["c"+str(format_id)] = (cite_text, cite_title)
+				cite = LexiconCitation(format_id, cite_text, cite_title)
+				citations.append(cite)
 				# Stitch the format id in place of the citation
 				para = para[:link_match.start(0)] + "{c"+str(format_id)+"}" + para[link_match.end(0):]
 				format_id += 1 # Increment to the next format citation
@@ -129,83 +167,125 @@ class LexiconArticle:
 		return articles
 
 	@staticmethod
-	def populate(lexicon_articles):
+	def interlink(lexicon_articles):
 		"""
-		Given a list of lexicon articles, fills out citation information
-		for each article and creates phantom pages for missing articles.
+		Fills out fields on articles that require other articles for context.
+		Creates phantom articles.
 		"""
-		article_by_title = {article.title : article for article in lexicon_articles}
-		# Determine all articles that exist or should exist
-		extant_titles = set([citation[1] for article in lexicon_articles for citation in article.citations])
-		# Interlink all citations
-		for article in lexicon_articles:
-			for cite_tuple in article.citations.values():
-				target = cite_tuple[1]
-				# Create article objects for phantom citations
-				if target not in article_by_title:
-					article_by_title[target] = LexiconArticle(None, sys.maxsize, target,
-						"<p><i>This entry hasn't been written yet.</i></p>", {})
-				# Interlink citations
-				if article_by_title[target].player is None:
-					article.pcites.add(target)
-				else:
-					article.wcites.add(target)
-				article_by_title[target].citedby.add(article.title)
-		return list(article_by_title.values())
+		# Sort out which articles are addendums and which titles are phantoms
+		written_titles = set()
+		cited_titles = set()
+		article_by_title = {}
+		written_articles_ordered = sorted(lexicon_articles, key=lambda a: (a.turn, a.title))
+		for written_article in written_articles_ordered:
+			# Track main articles by title
+			if written_article.title not in written_titles:
+				article_by_title[written_article.title] = written_article
+				written_titles.add(written_article.title)
+			# Append addendums to their parents
+			else:
+				parent = article_by_title[written_article.title]
+				parent.addendums.append(written_article)
+			# Collect all cited titles
+			for citation in written_article.citations:
+				cited_titles.add(citation.target)
+		# Create articles for each phantom title
+		for title in cited_titles - written_titles:
+			phantom_article = LexiconArticle(
+				None, sys.maxsize, title,
+				"<p><i>This entry hasn't been written yet.</i></p>", {})
+			article_by_title[title] = phantom_article
+		# To interlink the articles, each citation needs to have its .article
+		# filled in, and that article needs its citedby updated.
+		for parent in article_by_title.values():
+			under_title = [parent] + parent.addendums
+			for citing_article in under_title:
+				for citation in citing_article.citations:
+					target_article = article_by_title[citation.target]
+					citation.article = target_article
+					target_article.citedby.add(citing_article)
+		# Sort the articles by turn and title, then fill in prev/next fields
+		articles_ordered = sorted(article_by_title.values(), key=lambda a: (a.turn, utils.titlesort(a.title)))
+		for i in range(len(articles_ordered)):
+			articles_ordered[i].prev_article = articles_ordered[i-1] if i != 0 else None
+			articles_ordered[i].next_article = articles_ordered[i+1] if i != len(articles_ordered)-1 else None
+		return articles_ordered
 
-	def build_default_contentblock(self):
+	def build_default_content(self):
 		"""
-		Formats citations into the article content as normal HTML links
-		and returns the result.
+		Builds the contents of the content div for an article page.
+		"""
+		content = ""
+		# Build the main article content block
+		main_body = self.build_default_article_body()
+		content += "<div class=\"contentblock\"><h1>{}</h1>{}</div>\n".format(
+			self.title, main_body)
+		# Build the main citation content block
+		main_citations = self.build_default_citeblock(
+			self.prev_article, self.next_article)
+		if main_citations:
+			content += "<div class=\"contentblock citeblock\">{}</div>\n".format(
+				main_citations)
+		# Build any addendum content blocks
+		for addendum in self.addendums:
+			add_body = addendum.build_default_article_body()
+			content += "<div class=\"contentblock\">{}</div>\n".format(add_body)
+			add_citations = addendum.build_default_citeblock(None, None)
+			if add_citations:
+				content += "<div class=\"contentblock\">{}</div>\n".format(
+					add_citations)
+		return content
+
+	def build_default_article_body(self):
+		"""
+		Formats citations into the article text and returns the article body.
 		"""
 		format_map = {
-			format_id: "<a href=\"{1}.html\"{2}>{0}</a>".format(
-			cite_tuple[0], utils.titleescape(cite_tuple[1]),
-			"" if cite_tuple[1] in self.wcites else " class=\"phantom\"")
-			for format_id, cite_tuple in self.citations.items()
+			"c"+str(c.id) : c.format("<a {article.link_class} "\
+				"href=\"{article.title_filesafe}.html\">{text}</a>")
+			for c in self.citations
 		}
-		article_content = self.content.format(**format_map)
-		return "<div class=\"contentblock\">\n<h1>{}</h1>\n{}</div>\n".format(
-			self.title,
-			article_content)
+		return self.content.format(**format_map)
 
 	def build_default_citeblock(self, prev_article, next_article):
 		"""
-		Builds the citeblock content HTML for use in regular article pages.
-		For each defined target, links the target page as Previous or Next.
+		Builds the contents of a citation contentblock. For each defined target,
+		links the target page as Previous or Next. Prev/next and cites/citedby
+		elements are not included if they have no content.
 		"""
-		citeblock = "<div class=\"contentblock citeblock\">\n"
+		content = ""
 		# Prev/next links:
 		if next_article is not None or prev_article is not None:
-			prev_link = ("<a href=\"{}.html\"{}>&#8592; Previous</a>".format(
-				prev_article.title_filesafe,
-				" class=\"phantom\"" if prev_article.player is None else "")
+			prev_link = ("<a {0.link_class} href=\"{0.title_filesafe}.html\">&#8592; Previous</a>".format(
+				prev_article)
 				if prev_article is not None else "")
-			next_link = ("<a href=\"{}.html\"{}>Next &#8594;</a>".format(
-				next_article.title_filesafe,
-				" class=\"phantom\"" if next_article.player is None else "")
+			next_link = ("<a {0.link_class} href=\"{0.title_filesafe}.html\">Next &#8594;</a>".format(
+				next_article)
 				if next_article is not None else "")
-			citeblock += "<table><tr>\n<td>{}</td>\n<td>{}</td>\n</table></tr>\n".format(
+			content += "<table><tr>\n<td>{}</td>\n<td>{}</td>\n</table></tr>\n".format(
 				prev_link, next_link)
 		# Citations
-		cites_links = [
-			"<a href=\"{1}.html\"{2}>{0}</a>".format(
-			title, utils.titleescape(title),
-			"" if title in self.wcites else " class=\"phantom\"")
-			for title in sorted(
-				self.wcites | self.pcites,
-				key=lambda t: utils.titlesort(t))]
+		cites_titles = set()
+		cites_links = []
+		for citation in sorted(self.citations, key=lambda c: (utils.titlesort(c.target), c.id)):
+			if citation.target not in cites_titles:
+				cites_titles.add(citation.target)
+				cites_links.append(
+					citation.format(
+						"<a {article.link_class} href=\"{article.title_filesafe}.html\">{article.title}</a>"))
 		cites_str = " / ".join(cites_links)
-		if len(cites_str) < 1: cites_str = "&mdash;"
-		citeblock += "<p>Citations: {}</p>\n".format(cites_str)
+		if len(cites_str) > 0:
+			content += "<p>Citations: {}</p>\n".format(cites_str)
 		# Citedby
-		citedby_links = [
-			"<a href=\"{1}.html\">{0}</a>".format(
-			title, utils.titleescape(title))
-			for title in sorted(
-				self.citedby,
-				key=lambda t: utils.titlesort(t))]
+		citedby_titles = set()
+		citedby_links = []
+		for article in sorted(self.citedby, key=lambda a: (utils.titlesort(a.title), a.turn)):
+			if article.title not in citedby_titles:
+				citedby_titles.add(article.title)
+				citedby_links.append(
+					"<a {0.link_class} href=\"{0.title_filesafe}.html\">{0.title}</a>".format(article))
 		citedby_str = " / ".join(citedby_links)
-		if len(citedby_str) < 1: citedby_str = "&mdash;"
-		citeblock += "<p>Cited by: {}</p>\n</div>\n".format(citedby_str)
-		return citeblock
+		if len(citedby_str) > 0:
+			content += "<p>Cited by: {}</p>\n".format(citedby_str)
+
+		return content
