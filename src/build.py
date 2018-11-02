@@ -205,10 +205,12 @@ def build_statistics_page(page, articles):
 	pagerank_by_player = {player: 0 for player in players}
 	for article in articles:
 		if article.player is not None:
-			pagerank_by_player[article.player] += rank_by_article[article.title]
+			pagerank_by_player[article.player] += (rank_by_article[article.title]
+				if article.title in rank_by_article else 0)
 			for addendum in article.addendums:
 				addendum_title = "{0.title}-T{0.turn}".format(addendum)
-				pagerank_by_player[addendum_title] += rank_by_article[addendum_title]
+				pagerank_by_player[addendum_title] += (rank_by_article[addendum_title]
+					if addendum_title in rank_by_article else 0)
 	for player in players:
 		pagerank_by_player[player] = round(pagerank_by_player[player], 3)
 	player_rank = reverse_statistics_dict(pagerank_by_player)
