@@ -398,6 +398,24 @@ def build_all(path_prefix, lexicon_name):
 			f.write(build_compiled_page(articles, config))
 		print("    Wrote compiled page to " + config["PRINTABLE_FILE"])
 
+	with open(pathto("editor.html"), "w", encoding="utf-8") as f:
+		editor = utils.load_resource("editor.html")
+		writtenArticles = ""
+		phantomArticles = ""
+		for article in articles:
+			if article.player is None:
+				phantomArticles += "{{title: \"{0}\"}},".format(article.title.replace("\"", "\\\""))
+			else:
+				writtenArticles += "{{title: \"{0}\", author: \"{1.player}\"}},".format(
+					article.title.replace("\"", "\\\""), article)
+		nextTurn = 0
+		if articles:
+			nextTurn = max([article.turn for article in articles if article.player is not None]) + 1
+		editor = editor.replace("//writtenArticles", writtenArticles)
+		editor = editor.replace("//phantomArticles", phantomArticles)
+		editor = editor.replace("TURNNUMBER", str(nextTurn))
+		f.write(editor)
+
 	# Check that authors aren't citing themselves
 	print("Running citation checks...")
 	for parent in articles:
