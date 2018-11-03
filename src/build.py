@@ -400,11 +400,10 @@ def build_all(path_prefix, lexicon_name):
 
 	# Check that authors aren't citing themselves
 	print("Running citation checks...")
-	article_by_title = {article.title : article for article in articles}
-	#for article in articles:
-	#	for _, tup in article.citations.items():
-	#		cited = article_by_title[tup[1]]
-	#		if article.player == cited.player:
-	#			print("    {2}: {0} cites {1}".format(article.title, cited.title, cited.player))
+	for parent in articles:
+		for article in [parent] + parent.addendums:
+			for citation in article.citations:
+				if article.player == citation.article.player:
+					print("    {2}: {0} cites {1}".format(article.title, citation.target, article.player))
 
 	print()
