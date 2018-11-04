@@ -188,9 +188,20 @@ def build_statistics_page(page, articles):
 	content += "</div>\n"
 
 	# Total word count
+	all_articles = []
+	for article in articles:
+		all_articles.append(article)
+		all_articles.extend(article.addendums)
+	turn_numbers = set([a.turn for a in articles if a.player is not None])
+	aggregate = {num: 0 for num in turn_numbers}
+	for turn_num in turn_numbers:
+		for article in all_articles:
+			if article.turn <= turn_num:
+				aggregate[turn_num] += article_length[article.title]
+	aggr_list = [(str(k), [str(v)]) for k,v in aggregate.items()]
 	content += "<div class=\"contentblock\">\n"
-	content += "<u>Total word count:</u><br>\n"
-	content += str(sum(article_length.values()))
+	content += "<u>Aggregate word count by turn:</u><br>\n"
+	content += "<br>\n".join(itemize(aggr_list))
 	content += "</div>\n"
 
 	# Player pageranks
