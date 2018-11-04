@@ -364,10 +364,6 @@ def build_all(path_prefix, lexicon_name):
 		article = articles[idx]
 		with open(pathto("article", article.title_filesafe + ".html"), "w", encoding="utf-8") as f:
 			content = article.build_default_content()
-			#contentblock = article.build_default_contentblock()
-			#citeblock = article.build_default_citeblock(
-			#	None if idx == 0 else articles[idx - 1],
-			#	None if idx == l-1 else articles[idx + 1])
 			article_html = page.format(
 				title = article.title,
 				content = content)
