@@ -132,6 +132,7 @@
 			"\n" +
 			articleBody;
 		var articleFilename = articleTitle.toLowerCase().replace(/[^a-z0-9- ]/g, "").replace(/ +/g, "-");
+		articleFilename += "-" + articleTurn.toString();
 		var downloader = document.createElement("a");
 		downloader.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(articleText));
 		downloader.setAttribute("download", articleFilename);
