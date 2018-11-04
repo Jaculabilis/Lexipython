@@ -258,7 +258,13 @@ def build_statistics_page(page, articles):
 	content += "<br>\n".join(cited_times_items)
 	content += "</div>\n"
 
-	# Lowest pagerank
+	# Lowest pagerank of written articles
+	G = networkx.Graph()
+	for article in articles:
+		for citation in article.citations:
+			if citation.article.player is not None:
+				G.add_edge(article.title, citation.target)
+	rank_by_article = networkx.pagerank(G)
 	pageranks = reverse_statistics_dict(rank_by_article)
 	bot_ranked = list(enumerate(map(lambda x: x[1], pageranks), start=1))[-10:]
 	# Format the ranks into strings
@@ -267,7 +273,6 @@ def build_statistics_page(page, articles):
 	content += "<u>Bottom 10 articles by pagerank:</u><br>\n"
 	content += "<br>\n".join(bot_ranked_items)
 	content += "</div>\n"
-
 
 	# Fill in the entry skeleton
 	return page.format(title="Statistics", content=content)
