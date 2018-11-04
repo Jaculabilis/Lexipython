@@ -211,17 +211,17 @@ def build_statistics_page(page, articles):
 			for citation in addendum.citations:
 				addendum_title = "{0.title}-T{0.turn}".format(addendum)
 				G.add_edge(addendum_title, citation.target)
-	rank_by_article = networkx.pagerank(G)
+	rank_by_article_all = networkx.pagerank(G)
 	players = sorted(set([article.player for article in articles if article.player is not None]))
 	pagerank_by_player = {player: 0 for player in players}
 	for article in articles:
 		if article.player is not None:
-			pagerank_by_player[article.player] += (rank_by_article[article.title]
-				if article.title in rank_by_article else 0)
+			pagerank_by_player[article.player] += (rank_by_article_all[article.title]
+				if article.title in rank_by_article_all else 0)
 			for addendum in article.addendums:
 				addendum_title = "{0.title}-T{0.turn}".format(addendum)
-				pagerank_by_player[addendum_title] += (rank_by_article[addendum_title]
-					if addendum_title in rank_by_article else 0)
+				pagerank_by_player[addendum_title] += (rank_by_article_all[addendum_title]
+					if addendum_title in rank_by_article_all else 0)
 	for player in players:
 		pagerank_by_player[player] = round(pagerank_by_player[player], 3)
 	player_rank = reverse_statistics_dict(pagerank_by_player)
@@ -257,6 +257,17 @@ def build_statistics_page(page, articles):
 	content += "<u>Citations made to player:</u><br>\n"
 	content += "<br>\n".join(cited_times_items)
 	content += "</div>\n"
+
+	# Lowest pagerank
+	pageranks = reverse_statistics_dict(rank_by_article)
+	bot_ranked = list(enumerate(map(lambda x: x[1], pageranks), start=1))[-10:]
+	# Format the ranks into strings
+	bot_ranked_items = itemize(bot_ranked)
+	content += "<div class=\"contentblock\">\n"
+	content += "<u>Bottom 10 articles by pagerank:</u><br>\n"
+	content += "<br>\n".join(bot_ranked_items)
+	content += "</div>\n"
+
 
 	# Fill in the entry skeleton
 	return page.format(title="Statistics", content=content)
