@@ -259,13 +259,9 @@ def build_statistics_page(page, articles):
 	content += "</div>\n"
 
 	# Lowest pagerank of written articles
-	G = networkx.Graph()
-	for article in articles:
-		for citation in article.citations:
-			if citation.article.player is not None:
-				G.add_edge(article.title, citation.target)
-	rank_by_article = networkx.pagerank(G)
-	pageranks = reverse_statistics_dict(rank_by_article)
+	exclude = [a.title for a in articles if a.player is None]
+	rank_by_written_only = {k:v for k,v in rank_by_article.items() if k in exclude}
+	pageranks = reverse_statistics_dict(rank_by_written_only)
 	bot_ranked = list(enumerate(map(lambda x: x[1], pageranks), start=1))[-10:]
 	# Format the ranks into strings
 	bot_ranked_items = itemize(bot_ranked)
