@@ -260,7 +260,7 @@ def build_statistics_page(page, articles):
 
 	# Lowest pagerank of written articles
 	exclude = [a.title for a in articles if a.player is None]
-	rank_by_written_only = {k:v for k,v in rank_by_article.items() if k in exclude}
+	rank_by_written_only = {k:v for k,v in rank_by_article.items() if k not in exclude}
 	pageranks = reverse_statistics_dict(rank_by_written_only)
 	bot_ranked = list(enumerate(map(lambda x: x[1], pageranks), start=1))[-10:]
 	# Format the ranks into strings
