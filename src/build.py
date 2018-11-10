@@ -298,49 +298,54 @@ def build_compiled_page(articles, config):
 	"""
 	Builds a page compiling all articles in the Lexicon.
 	"""
-	# Sort by turn and title
-	turn_order = sorted(
+	articles = sorted(
 		articles,
-		key=lambda a: (a.turn, utils.titlesort(a.title)))
+		key=lambda a: (utils.titlesort(a.title)))
 
-	# Build the content of each article
-	css = utils.load_resource("lexicon.css")
-	css += "\n"\
-		"body { background: #ffffff; }\n"\
-		"sup { vertical-align: top; font-size: 0.6em; }\n"
-	content = "<html>\n"\
-		"<head>\n"\
-		"<title>{lexicon}</title>\n"\
-		"<style>\n"\
-		"{css}\n"\
-		"</style>\n"\
-		"<body>\n"\
-		"<h1>{lexicon}</h1>".format(
-			lexicon=config["LEXICON_TITLE"],
-			css=css)
-	for article in turn_order:
-		# Stitch in superscripts for citations
+	# Write the header
+	content = "<html><head><title>{}</title>"\
+		"<style>span.signature {{ text-align: right; }} "\
+		"sup {{ vertical-align: top; font-size: 0.6em; }} "\
+		"u {{ text-decoration-color: #888888; }}</style>"\
+		"</head><body>\n".format(config["LEXICON_TITLE"])
+
+	# Write each article
+	for article in articles:
+		# Article title
+		content += "<div style=\"page-break-inside:avoid;\"><h2>{0.title}</h2>".format(article)
+
+		# Article content
 		format_map = {
-			format_id: "{}<sup>{}</sup>".format(cite_tuple[0], format_id[1:])
-			for format_id, cite_tuple in article.citations.items()
+			"c"+str(c.id) : c.format("<u>{text}</u><sup>{id}</sup>")
+			for c in article.citations
 		}
-		article_body = article.content.format(**format_map)
-		# Stitch a page-break-avoid div around the header and first paragraph
-		article_body = article_body.replace("</p>", "</p></div>", 1)
-		# Append the citation block
-		cite_list = "<br>\n".join(
-			"{}. {}\n".format(format_id[1:], cite_tuple[1])
-			for format_id, cite_tuple in sorted(
-				article.citations.items(),
-				key=lambda t:int(t[0][1:])))
-		cite_block = "" if article.player is None else ""\
-			"<p><i>Citations:</i><br>\n"\
-			"{}\n</p>".format(cite_list)
-		article_block = "<div style=\"page-break-inside:avoid;\">\n"\
-			"<h2>{}</h2>\n"\
-			"{}\n"\
-			"{}\n".format(article.title, article_body, cite_block)
-		content += article_block
+		article_content = article.content.format(**format_map)
+		article_content = article_content.replace("</p>", "</p></div>", 1)
+		content += article_content
+
+		# Article citations
+		cite_list = "<br>".join(
+			c.format("{id}. {target}")
+			for c in article.citations)
+		cite_block = "<p>{}</p>".format(cite_list)
+		content += cite_block
+
+		# Addendums
+		for addendum in article.addendums:
+			# Addendum content
+			format_map = {
+				"c"+str(c.id) : c.format("<u>{text}</u><sup>{id}</sup>")
+				for c in addendum.citations
+			}
+			article_content = addendum.content.format(**format_map)
+			content += article_content
+
+			# Addendum citations
+			cite_list = "<br>".join(
+				c.format("{id}. {target}")
+				for c in addendum.citations)
+			cite_block = "<p>{}</p>".format(cite_list)
+			content += cite_block
 
 	content += "</body></html>"
 	return content
