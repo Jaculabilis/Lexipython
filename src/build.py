@@ -427,8 +427,11 @@ def build_all(path_prefix, lexicon_name):
 		writtenArticles = ""
 		phantomArticles = ""
 		for article in articles:
+			citedby = {'"' + citer.player + '"' for citer in article.citedby}
 			if article.player is None:
-				phantomArticles += "{{title: \"{0}\"}},".format(article.title.replace("\"", "\\\""))
+				phantomArticles += "{{title: \"{0}\", citedby: [{1}]}},".format(
+					article.title.replace("\"", "\\\""),
+					",".join(sorted(citedby)))
 			else:
 				writtenArticles += "{{title: \"{0}\", author: \"{1.player}\"}},".format(
 					article.title.replace("\"", "\\\""), article)

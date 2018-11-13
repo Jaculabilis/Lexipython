@@ -20,9 +20,13 @@
 	]
 
 	function updatePreview() {
+		var articlePlayer = document.getElementById("article-player").value;
 		var articleTitle = document.getElementById("article-title").value;
 		var articleBody = document.getElementById("article-body").value;
 		var previewHtml = "<h1>" + articleTitle + "</h1>\n";
+		if (phantomArticles.some(e => (e.title === articleTitle && e.citedby.some(p => (p === articlePlayer))))) {
+			previewHtml += "<p><span style=\"color:#dd0000\">You've cited this article!</span></p>"
+		}
 		previewHtml += parseLexipythonMarkdown(articleBody);
 		document.getElementById("preview").innerHTML = previewHtml;
 	}
@@ -164,7 +168,7 @@
 	<div class="column">
 		<table style="width:100%">
 		<tr><td># Player:</td>
-		<td><input id="article-player" style="width:100%;" value="PN"/></td>
+		<td><input id="article-player" style="width:100%;" value="PN" oninput="updatePreview()"/></td>
 		</tr>
 		<tr><td># Turn:</td>
 		<td><input id="article-turn" style="width:100%" value="TURNNUMBER"/></td>
