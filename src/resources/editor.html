@@ -94,23 +94,14 @@
 			content += "<p><i>The following articles will be cited:</i></p>\n";
 			for (var i = 0; i < citationList.length; i++) {
 				citation = citationList[i][0].toString() + ". " + citationList[i][1];
-				if (writtenArticles.some(
-					function (e) {
-						return (e.title === citationList[i][1]) && (e.author === player);
-					})) {
-						content += "<p><span style=\"color:#ff0000\">" + citation + " [Written by you!]</span></p>";
-				} else if (writtenArticles.some(
-					function (e) {
-						return (e.title === citationList[i][1]);
-					})) {
-						content += "<p>" + citation + " [Written]";
-				} else if (phantomArticles.some(
-					function (e) {
-						return (e.title === citationList[i][1]);
-					})) {
-						content += "<p>" + citation + " [Phantom]";
+				if (writtenArticles.some(e => (e.title === citationList[i][1]) && (e.author === player))) {
+					content += "<p><span style=\"color:#ff0000\">" + citation + " [Written by you!]</span></p>";
+				} else if (writtenArticles.some(e => (e.title === citationList[i][1]))) {
+					content += "<p>" + citation + " [Written]";
+				} else if (phantomArticles.some(e => (e.title === citationList[i][1]))) {
+					content += "<p>" + citation + " [Phantom]";
 				} else {
-						content += "<p>" + citation + " [New]";
+					content += "<p>" + citation + " [New]";
 				}
 				content += "</p>\n";
 			}
