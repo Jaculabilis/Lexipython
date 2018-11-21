@@ -270,6 +270,14 @@ def build_statistics_page(page, articles):
 	content += "<br>\n".join(bot_ranked_items)
 	content += "</div>\n"
 
+	# Undercited articles
+	undercited = {a.title: len(a.citedby) for a in articles if len(a.citedby) <= 1}
+	undercited_items = itemize(reverse_statistics_dict(undercited))
+	content += "<div class=\"contentblock\">\n"
+	content += "<u>Undercited articles:</u><br>\n"
+	content += "<br>\n".join(undercited_items)
+	content += "</div>\n"
+
 	# Fill in the entry skeleton
 	return page.format(title="Statistics", content=content)
 
