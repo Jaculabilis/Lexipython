@@ -197,7 +197,12 @@ def build_statistics_page(page, articles):
 	for turn_num in turn_numbers:
 		for article in all_articles:
 			if article.turn <= turn_num:
-				aggregate[turn_num] += article_length[article.title]
+				format_map = {
+					"c"+str(c.id): c.text
+					for c in article.citations
+				}
+				plain_content = article.content.format(**format_map)
+				aggregate[turn_num] += len(plain_content.split())
 	aggr_list = [(str(k), [str(v)]) for k,v in aggregate.items()]
 	content += "<div class=\"contentblock\">\n"
 	content += "<u>Aggregate word count by turn:</u><br>\n"
