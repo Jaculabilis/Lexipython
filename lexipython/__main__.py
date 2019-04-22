@@ -8,9 +8,9 @@ import argparse
 import os
 import re
 import json
-from src.article import LexiconArticle
-from src import build
-from src import utils
+from article import LexiconArticle
+import build
+import utils
 
 def is_lexicon(name):
 	"""

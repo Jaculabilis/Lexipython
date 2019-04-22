@@ -1,6 +1,7 @@
 import os
 import re
 from urllib import parse
+import pkg_resources
 
 # Short utility functions for handling titles
 
@@ -37,8 +38,9 @@ def titlesort(s):
 def load_resource(filename, cache={}):
 	"""Loads files from the resources directory with caching."""
 	if filename not in cache:
-		with open(os.path.join("src", "resources", filename), "r", encoding="utf-8") as f:
-			cache[filename] = f.read()
+		binary = pkg_resources.resource_string("resources", filename)
+		unistr = binary.decode("utf-8")
+		cache[filename] = unistr
 	return cache[filename]
 
 def load_config(name):

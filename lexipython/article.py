@@ -1,7 +1,7 @@
 import os
 import sys
 import re
-import src.utils as utils
+import utils
 
 class LexiconCitation:
 	"""

@@ -5,8 +5,8 @@ import io		# For writing pages out as UTF-8
 import networkx # For pagerank analytics
 from collections import defaultdict # For rank inversion in statistics
 
-from src import utils
-from src.article import LexiconArticle
+import utils
+from article import LexiconArticle
 
 class LexiconPage:
 	"""
