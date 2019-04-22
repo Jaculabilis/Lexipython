@@ -1,5 +1,6 @@
 import os
 import re
+import io
 from urllib import parse
 import pkg_resources
 
@@ -43,35 +44,43 @@ def load_resource(filename, cache={}):
 		cache[filename] = unistr
 	return cache[filename]
 
+def parse_config_file(f):
+	"""Parses a Lexipython config file."""
+	config = {}
+	line = f.readline()
+	while line:
+		# Skim lines until a value definition begins
+		conf_match = re.match(r">>>([^>]+)>>>\s+", line)
+		if not conf_match:
+			line = f.readline()
+			continue
+		# Accumulate the conf value until the value ends
+		conf = conf_match.group(1)
+		conf_value = ""
+		line = f.readline()
+		conf_match = re.match(r"<<<{0}<<<\s+".format(conf), line)
+		while line and not conf_match:
+			conf_value += line
+			line = f.readline()
+			conf_match = re.match(r"<<<{0}<<<\s+".format(conf), line)
+		if not line:
+			raise EOFError("Reached EOF while reading config value {}".format(conf))
+		config[conf] = conf_value.strip()
+	return config
+
 def load_config(name):
 	"""
 	Loads values from a Lexicon's config file.
 	"""
-	config = {}
 	with open(os.path.join("lexicon", name, "lexicon.cfg"), "r", encoding="utf8") as f:
-		line = f.readline()
-		while line:
-			# Skim lines until a value definition begins
-			conf_match = re.match(r">>>([^>]+)>>>\s+", line)
-			if not conf_match:
-				line = f.readline()
-				continue
-			# Accumulate the conf value until the value ends
-			conf = conf_match.group(1)
-			conf_value = ""
-			line = f.readline()
-			conf_match = re.match(r"<<<{0}<<<\s+".format(conf), line)
-			while line and not conf_match:
-				conf_value += line
-				line = f.readline()
-				conf_match = re.match(r"<<<{0}<<<\s+".format(conf), line)
-			if not line:
-				# TODO Not this
-				raise SystemExit("Reached EOF while reading config value {}".format(conf))
-			config[conf] = conf_value.strip()
-	# Check that all necessary values were configured
-	for config_value in ['LEXICON_TITLE', 'PROMPT', 'SESSION_PAGE', "INDEX_LIST"]:
-		if config_value not in config:
-			# TODO Not this either
-			raise SystemExit("Error: {} not set in lexipython.cfg".format(config_value))
+		config = parse_config_file(f)
+	# Check that no values are missing that are present in the default config
+	with io.StringIO(load_resource("lexicon.cfg")) as f:
+		default_config = parse_config_file(f)
+	missing_keys = []
+	for key in default_config.keys():
+		if key not in config:
+			missing_keys.append(key)
+	if missing_keys:
+		raise KeyError("{} missing config values for: {}".format(name, " ".join(missing_keys)))
 	return config
