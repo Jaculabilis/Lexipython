@@ -376,6 +376,107 @@ def build_compiled_page(articles, config):
 	content += "</body></html>"
 	return content
 
+def latex_from_markdown(raw_content):
+	content = ""
+	headers = raw_content.split('\n', 3)
+	player_header, turn_header, title_header, content_raw = headers
+	if not turn_header.startswith("# Turn:"):
+		print("Turn header missing or corrupted")
+		return None
+	turn = int(turn_header[7:].strip())
+	if not title_header.startswith("# Title:"):
+		print("Title header missing or corrupted")
+		return None
+	title = utils.titlecase(title_header[8:])
+	#content += "\\label{{{}}}\n".format(title)
+	#content += "\\section*{{{}}}\n\n".format(title)
+	# Parse content
+	paras = re.split("\n\n+", content_raw.strip())
+	for para in paras:
+		# Escape things
+		para = re.sub("&mdash;", "---", para)
+		para = re.sub("&", "\\&", para)
+		para = re.sub(r"\"(?=\w)", "``", para)
+		para = re.sub(r"(?<=\w)\"", "''", para)
+		# Replace bold and italic marks with commands
+		para = re.sub(r"//([^/]+)//", r"\\textit{\1}", para)
+		para = re.sub(r"\*\*([^*]+)\*\*", r"\\textbf{\1}", para)
+		# Footnotify citations
+		link_match = re.search(r"\[\[(([^|\[\]]+)\|)?([^|\[\]]+)\]\]", para)
+		while link_match:
+			# Identify the citation text and cited article
+			cite_text = link_match.group(2) if link_match.group(2) else link_match.group(3)
+			cite_title = utils.titlecase(re.sub(r"\s+", " ", link_match.group(3)))
+			# Stitch the title into a footnote
+			para = (para[:link_match.start(0)] + cite_text + "\\footnote{" + 
+				cite_title + 
+				", p. \\pageref{" + str(hash(cite_title)) + "}" + 
+				"}" + para[link_match.end(0):])
+			link_match = re.search(r"\[\[(([^|\[\]]+)\|)?([^|\[\]]+)\]\]", para)
+		# Convert signature to right-aligned
+		if para[:1] == '~':
+			para = "\\begin{flushright}\n" + para[1:] + "\n\\end{flushright}\n\n"
+		else:
+			para = para + "\n\n"
+		content += para
+	return title, turn, content
+
+def latex_from_directory(directory):
+	articles = {}
+	for filename in os.listdir(directory):
+		path = os.path.join(directory, filename)
+		# Read only .txt files
+		if filename[-4:] == ".txt":
+			with open(path, "r", encoding="utf8") as src_file:
+				raw = src_file.read()
+				title, turn, latex = latex_from_markdown(raw)
+				if title not in articles:
+					articles[title] = {}
+				articles[title][turn] = latex
+
+	# Write the preamble
+	content = "\\documentclass[12pt,a4paper,twocolumn,twoside]{article}\n"\
+		"\\usepackage[perpage]{footmisc}\n"\
+		"\\begin{document}\n"\
+		"\n"
+
+	for title in sorted(articles.keys(), key=lambda t: utils.titlesort(t)):
+		under_title = articles[title]
+		turns = sorted(under_title.keys())
+		latex = under_title[turns[0]]
+
+		# Section header
+		content += "\\label{{{}}}\n".format(hash(title))
+		content += "\\section*{{{}}}\n\n".format(title)
+
+		# Section content
+		#format_map = {
+		#	"c"+str(c.id) : c.format("\\footnote{{{target}}}")
+		#	for c in article.citations
+		#}
+		#article_content = article.content.format(**format_map)
+		content += latex
+
+		# Addendums
+		for turn in turns[1:]:
+			#content += "\\vspace{6pt}\n\\hrule\n\\vspace{6pt}\n\n"
+			content += "\\begin{center}\n$\\ast$~$\\ast$~$\\ast$\n\\end{center}\n\n"
+
+			latex = under_title[turn]
+			#format_map = {
+			#	"c"+str(c.id) : c.format("\\footnote{{{target}}}")
+			#	for c in addendum.citations
+			#}
+			#article_content = addendum.content.format(**format_map)
+			content += latex
+
+	content += "\\end{document}"
+
+	content = re.sub(r"\"(?=\w)", "``", content)
+	content = re.sub(r"(?<=\w)\"", "''", content)
+
+	return content
+
 def build_all(path_prefix, lexicon_name):
 	"""
 	Builds all browsable articles and pages in the Lexicon.
