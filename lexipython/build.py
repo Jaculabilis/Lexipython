@@ -28,11 +28,21 @@ class LexiconPage:
 		total_kwargs = {**self.kwargs, **kwargs}
 		return self.skeleton.format(**total_kwargs)
 
-def build_contents_page(page, articles, index_list):
+def article_matches_index(index_type, pattern, article):
+	if index_type == "char":
+		return utils.titlesort(article.title)[0].upper() in pattern.upper()
+	if index_type == "prefix":
+		return article.title.startswith(pattern)
+	if index_type == "etc":
+		return True
+	raise ValueError("Unknown index type: '{}'".format(index_type))
+
+def build_contents_page(config, page, articles):
 	"""
 	Builds the full HTML of the contents page.
 	"""
 	content = "<div class=\"contentblock\">"
+
 	# Head the contents page with counts of written and phantom articles
 	phantom_count = len([article for article in articles if article.player is None])
 	if phantom_count == 0:
@@ -40,32 +50,68 @@ def build_contents_page(page, articles, index_list):
 	else:
 		content += "<p>There are <b>{0}</b> entries, <b>{1}</b> written and <b>{2}</b> phantom.</p>\n".format(
 			len(articles), len(articles) - phantom_count, phantom_count)
+
 	# Prepare article links
 	link_by_title = {article.title : "<a href=\"../article/{1}.html\"{2}>{0}</a>".format(
 			article.title, article.title_filesafe,
 			" class=\"phantom\"" if article.player is None else "")
 			for article in articles}
-	# Write the articles in alphabetical order
-	content += utils.load_resource("contents.html")
-	content += "<div id=\"index-order\" style=\"display:none\">\n<ul>\n"
-	indices = index_list.split("\n")
-	alphabetical_order = sorted(
+
+	# Determine index order
+	indices = config['INDEX_LIST'].split("\n")
+	index_by_pri = {}
+	index_list_order = []
+	for index in indices:
+		match = re.match(r"([^[:]+)(\[([-\d]+)\])?:(.+)", index)
+		index_type = match.group(1)
+		pattern = match.group(4)
+		try:
+			pri_s = match.group(3)
+			pri = int(pri_s) if pri_s else 0
+		except:
+			raise TypeError("Could not parse index pri '{}' in '{}'".format(pri_s, index))
+		if pri not in index_by_pri:
+			index_by_pri[pri] = []
+		index_by_pri[pri].append((index_type, pattern))
+		index_list_order.append(pattern)
+
+	# Assign articles to indices
+	articles_by_index = {pattern: [] for pattern in index_list_order}
+	titlesort_order = sorted(
 		articles,
 		key=lambda a: utils.titlesort(a.title))
-	check_off = list(alphabetical_order)
-	for index_str in indices:
-		content += "<h3>{0}</h3>\n".format(index_str)
-		for article in alphabetical_order:
-			if (utils.titlesort(article.title)[0].upper() in index_str):
-				check_off.remove(article)
-				content += "<li>{}</li>\n".format(link_by_title[article.title])
-	if len(check_off) > 0:
-		content += "<h3>&c.</h3>\n"
-		for article in check_off:
+	for article in titlesort_order:
+		# Find the first index that matches
+		matched = False
+		for pri, indices in sorted(index_by_pri.items(), reverse=True):
+			for index_type, pattern in indices:
+				# Try to match the index
+				if article_matches_index(index_type, pattern, article):
+					articles_by_index[pattern].append(article)
+					matched = True
+				# Break out once a match is found
+				if matched:
+					break
+			if matched:
+				break
+		if not matched:
+			raise KeyError("No index matched article '{}'".format(article.title))
+
+	# Write index order div
+	content += utils.load_resource("contents.html")
+	content += "<div id=\"index-order\" style=\"display:{}\">\n<ul>\n".format(
+		"block" if config["DEFAULT_SORT"] == "index" else "none")
+	for pattern in index_list_order:
+		# Write the index header
+		content += "<h3>{0}</h3>\n".format(pattern)
+		# Write all matches articles
+		for article in articles_by_index[pattern]:
 			content += "<li>{}</li>\n".format(link_by_title[article.title])
 	content += "</ul>\n</div>\n"
-	# Write the articles in turn order
-	content += "<div id=\"turn-order\" style=\"display:none\">\n<ul>\n"
+
+	# Write turn order div
+	content += "<div id=\"turn-order\" style=\"display:{}\">\n<ul>\n".format(
+		"block" if config["DEFAULT_SORT"] == "turn" else "none")
 	turn_numbers = [article.turn for article in articles if article.player is not None]
 	first_turn, last_turn = min(turn_numbers), max(turn_numbers)
 	turn_order = sorted(
@@ -83,6 +129,31 @@ def build_contents_page(page, articles, index_list):
 		for article in check_off:
 			content += "<li>{}</li>\n".format(link_by_title[article.title])
 	content += "</ul>\n</div>\n"
+
+	# Write by-player div
+	content += "<div id=\"player-order\" style=\"display:{}\">\n<ul>\n".format(
+		"block" if config["DEFAULT_SORT"] == "player" else "none")
+	articles_by_player = {}
+	extant_phantoms = False
+	for article in turn_order:
+		if article.player is not None:
+			if article.player not in articles_by_player:
+				articles_by_player[article.player] = []
+			articles_by_player[article.player].append(article)
+		else:
+			extant_phantoms = True
+	for player, player_articles in sorted(articles_by_player.items()):
+		content += "<h3>{0}</h3>\n".format(player)
+		for article in player_articles:
+			content += "<li>{}</li>\n".format(link_by_title[article.title])
+	if extant_phantoms:
+		content += "<h3>Unwritten</h3>\n"
+		for article in titlesort_order:
+			if article.player is None:
+				content += "<li>{}</li>\n".format(link_by_title[article.title])
+	content += "</ul>\n</div>\n"
+
+	content += "</div>\n"
 	# Fill in the page skeleton
 	return page.format(title="Index", content=content)
 
@@ -477,6 +548,15 @@ def latex_from_directory(directory):
 
 	return content
 
+def parse_sort_type(sort):
+	if sort in "?byindex":
+		return "?byindex"
+	if sort in "?byturn":
+		return "?byturn"
+	if sort in "?byplayer":
+		return "?byplayer"
+	return ""
+
 def build_all(path_prefix, lexicon_name):
 	"""
 	Builds all browsable articles and pages in the Lexicon.
@@ -490,7 +570,7 @@ def build_all(path_prefix, lexicon_name):
 		lexicon=config["LEXICON_TITLE"],
 		logo=config["LOGO_FILENAME"],
 		prompt=config["PROMPT"],
-		sort=config["DEFAULT_SORT"])
+		sort=parse_sort_type(config["DEFAULT_SORT"]))
 	# Parse the written articles
 	articles = LexiconArticle.parse_from_directory(os.path.join(lex_path, "src"))
 	# Once they've been populated, the articles list has the titles of all articles
@@ -528,7 +608,7 @@ def build_all(path_prefix, lexicon_name):
 	# Write default pages
 	print("Writing default pages...")
 	with open(pathto("contents", "index.html"), "w", encoding="utf-8") as f:
-		f.write(build_contents_page(page, articles, config["INDEX_LIST"]))
+		f.write(build_contents_page(config, page, articles))
 	print("    Wrote Contents")
 	with open(pathto("rules", "index.html"), "w", encoding="utf-8") as f:
 		f.write(build_rules_page(page))
