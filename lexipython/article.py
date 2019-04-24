@@ -221,8 +221,7 @@ class LexiconArticle:
 		content += "<div class=\"contentblock\"><h1>{}</h1>{}</div>\n".format(
 			self.title, main_body)
 		# Build the main citation content block
-		main_citations = self.build_default_citeblock(
-			self.prev_article, self.next_article)
+		main_citations = self.build_default_citeblock()
 		if main_citations:
 			content += "<div class=\"contentblock citeblock\">{}</div>\n".format(
 				main_citations)
@@ -230,10 +229,16 @@ class LexiconArticle:
 		for addendum in self.addendums:
 			add_body = addendum.build_default_article_body()
 			content += "<div class=\"contentblock\">{}</div>\n".format(add_body)
-			add_citations = addendum.build_default_citeblock(None, None)
+			add_citations = addendum.build_default_citeblock()
 			if add_citations:
 				content += "<div class=\"contentblock\">{}</div>\n".format(
 					add_citations)
+		# Build the prev/next block
+		prev_next = self.build_prev_next_block(
+			self.prev_article, self.next_article)
+		if prev_next:
+			content += "<div class=\"contentblock citeblock\">{}</div>\n".format(
+				prev_next)
 		return content
 
 	def build_default_article_body(self):
@@ -247,23 +252,12 @@ class LexiconArticle:
 		}
 		return self.content.format(**format_map)
 
-	def build_default_citeblock(self, prev_article, next_article):
+	def build_default_citeblock(self):
 		"""
-		Builds the contents of a citation contentblock. For each defined target,
-		links the target page as Previous or Next. Prev/next and cites/citedby
-		elements are not included if they have no content.
+		Builds the contents of a citation contentblock. Skips sections with no
+		content.
 		"""
 		content = ""
-		# Prev/next links:
-		if next_article is not None or prev_article is not None:
-			prev_link = ("<a {0.link_class} href=\"{0.title_filesafe}.html\">&#8592; Previous</a>".format(
-				prev_article)
-				if prev_article is not None else "")
-			next_link = ("<a {0.link_class} href=\"{0.title_filesafe}.html\">Next &#8594;</a>".format(
-				next_article)
-				if next_article is not None else "")
-			content += "<table><tr>\n<td>{}</td>\n<td>{}</td>\n</table></tr>\n".format(
-				prev_link, next_link)
 		# Citations
 		cites_titles = set()
 		cites_links = []
@@ -288,4 +282,21 @@ class LexiconArticle:
 		if len(citedby_str) > 0:
 			content += "<p>Cited by: {}</p>\n".format(citedby_str)
 
+		return content
+
+	def build_prev_next_block(self, prev_article, next_article):
+		"""
+		For each defined target, links the target page as Previous or Next.
+		"""
+		content = ""
+		# Prev/next links:
+		if next_article is not None or prev_article is not None:
+			prev_link = ("<a {0.link_class} href=\"{0.title_filesafe}.html\">&#8592; Previous</a>".format(
+				prev_article)
+				if prev_article is not None else "")
+			next_link = ("<a {0.link_class} href=\"{0.title_filesafe}.html\">Next &#8594;</a>".format(
+				next_article)
+				if next_article is not None else "")
+			content += "<table><tr>\n<td>{}</td>\n<td>{}</td>\n</table></tr>\n".format(
+				prev_link, next_link)
 		return content
