@@ -172,6 +172,13 @@ class LexiconArticle:
 		Fills out fields on articles that require other articles for context.
 		Creates phantom articles.
 		"""
+		# Preliminary assertion that title/turn is unique
+		keys = set()
+		for article in lexicon_articles:
+			if (article.title, article.turn) in keys:
+				raise ValueError("Found two articles with title '{}' and turn '{}'".format(
+					article.title, article.turn))
+			keys.add((article.title, article.turn))
 		# Sort out which articles are addendums and which titles are phantoms
 		written_titles = set()
 		cited_titles = set()
