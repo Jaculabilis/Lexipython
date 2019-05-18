@@ -304,6 +304,6 @@ class LexiconArticle:
 			next_link = ("<a {0.link_class} href=\"{0.title_filesafe}.html\">Next &#8594;</a>".format(
 				next_article)
 				if next_article is not None else "")
-			content += "<table><tr>\n<td>{}</td>\n<td>{}</td>\n</table></tr>\n".format(
+			content += "<table><tr>\n<td>{}</td>\n<td>{}</td>\n</tr></table>\n".format(
 				prev_link, next_link)
 		return content
