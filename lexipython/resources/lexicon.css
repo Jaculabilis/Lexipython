@@ -43,6 +43,9 @@ div#sidebar table {
 div.citeblock table td:first-child + td a {
 	justify-content: flex-end;
 }
+div.misclinks table td a {
+	justify-content: center;
+}
 table a {
 	display: flex;
 	padding: 3px;

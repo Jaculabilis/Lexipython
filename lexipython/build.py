@@ -173,12 +173,19 @@ def build_formatting_page(page):
 	# Fill in the entry skeleton
 	return page.format(title="Formatting", content=content)
 
-def build_session_page(page, session_content):
+def build_session_page(page, config):
 	"""
 	Builds the full HTML of the session page.
 	"""
-	# Fill in the entry skeleton
-	content = "<div class=\"contentblock\">{}</div>".format(session_content)
+	# Misc links
+	content =  '<div class="contentblock misclinks"><table><tr>\n'
+	content += '<td><a href="../editor.html">Editor</a></td>\n'
+	if config['SEARCHABLE_FILE']:
+		content += '<td><a href="../{}">Compiled</a></td>\n'.format(config['SEARCHABLE_FILE'].strip())
+	content += '</tr></table></div>\n'
+	# Session content
+	content += "<div class=\"contentblock\">{}</div>".format(config["SESSION_PAGE"])
+
 	return page.format(title="Session", content=content)
 
 def build_statistics_page(config, page, articles):
@@ -450,7 +457,7 @@ def build_all(path_prefix, lexicon_name):
 		f.write(build_formatting_page(page))
 	print("    Wrote Formatting")
 	with open(pathto("session", "index.html"), "w", encoding="utf-8", newline='') as f:
-		f.write(build_session_page(page, config["SESSION_PAGE"]))
+		f.write(build_session_page(page, config))
 	print("    Wrote Session")
 	with open(pathto("statistics", "index.html"), "w", encoding="utf-8", newline='') as f:
 		f.write(build_statistics_page(config, page, articles))
