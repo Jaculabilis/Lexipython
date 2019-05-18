@@ -1,12 +1,12 @@
-import sys		# For argv and stderr
+# Standard library imports
 import os		# For reading directories
 import re		# For parsing lex content
-import io		# For writing pages out as UTF-8
-import networkx # For pagerank analytics
-from collections import defaultdict # For rank inversion in statistics
 
+# Application imports
 import utils
 from article import LexiconArticle
+from statistics import LexiconStatistics
+
 
 class LexiconPage:
 	"""
@@ -181,191 +181,24 @@ def build_session_page(page, session_content):
 	content = "<div class=\"contentblock\">{}</div>".format(session_content)
 	return page.format(title="Session", content=content)
 
-def reverse_statistics_dict(stats, reverse=True):
-	"""
-	Transforms a dictionary mapping titles to a value into a list of values
-	and lists of titles. The list is sorted by the value, and the titles are
-	sorted alphabetically.
-	"""
-	rev = {}
-	for key, value in stats.items():
-		if value not in rev:
-			rev[value] = []
-		rev[value].append(key)
-	for key, value in rev.items():
-		rev[key] = sorted(value, key=lambda t: utils.titlesort(t))
-	return sorted(rev.items(), key=lambda x:x[0], reverse=reverse)
+def build_statistics_page(config, page, articles):
+	# Read the config file for which stats to publish.
+	lines = config['STATISTICS'].split("\n")
+	stats = []
+	for line in lines:
+		stat, toggle = line.split()
+		if toggle == "on":
+			stats.append("stat_" + stat)
 
-def itemize(stats_list):
-	return map(lambda x: "{0} &ndash; {1}".format(x[0], "; ".join(x[1])), stats_list)
-
-def build_statistics_page(page, articles):
-	"""
-	Builds the full HTML of the statistics page.
-
-	The existence of addendum articles complicates how some statistics are
-	computed. An addendum is an article, with its own author, body, and
-	citations, but in a Lexicon it exists appended to another article. To handle
-	this, we distinguish an _article_ from a _page_. An article is a unit parsed
-	from a single source file. A page is a main article and all addendums under
-	the same title.
-	"""
-	min_turn = 0
-	max_turn = 0
-	article_by_title = {}
-	page_by_title = {}
-	players = set()
-	for main_article in articles:
-		key = main_article.title
-		page_by_title[key] = [main_article]
-		page_by_title[key].extend(main_article.addendums)
-		for article in [main_article] + main_article.addendums:
-			# Disambiguate articles by appending turn number to the title
-			key = "{0.title} (T{0.turn})".format(article)
-			article_by_title[key] = article
-			if article.player is not None:
-				min_turn = min(min_turn, article.turn)
-				max_turn = max(max_turn, article.turn)
-				players.add(article.player)
-	content = ""
-	stat_block = "<div class=\"contentblock\"><u>{0}</u><br>{1}</div>\n"
-
-	# Top pages by pagerank
-	# Compute pagerank for each page, including all articles
-	G = networkx.Graph()
-	for page_title, articles in page_by_title.items():
-		for article in articles:
-			for citation in article.citations:
-				G.add_edge(page_title, citation.target)
-	pagerank_by_title = networkx.pagerank(G)
-	for page_title, articles in page_by_title.items():
-		if page_title not in pagerank_by_title:
-			pagerank_by_title[page_title] = 0
-	# Get the top ten articles by pagerank
-	top_pageranks = reverse_statistics_dict(pagerank_by_title)[:10]
-	# Replace the pageranks with ordinals
-	top_ranked = enumerate(map(lambda x: x[1], top_pageranks), start=1)
-	# Format the ranks into strings
-	top_ranked_items = itemize(top_ranked)
-	# Write the statistics to the page
-	content += stat_block.format(
-		"Top 10 articles by page rank:",
-		"<br>".join(top_ranked_items))
-
-	# Pages cited/cited by
-	pages_cited    = {page_title: set() for page_title in page_by_title.keys()}
-	pages_cited_by = {page_title: set() for page_title in page_by_title.keys()}
-	for page_title, articles in page_by_title.items():
-		for article in articles:
-			for citation in article.citations:
-				pages_cited[page_title].add(citation.target)
-				pages_cited_by[citation.target].add(page_title)
-	for page_title, cite_titles in pages_cited.items():
-		pages_cited[page_title] = len(cite_titles)
-	for page_title, cite_titles in pages_cited_by.items():
-		pages_cited_by[page_title] = len(cite_titles)
-
-	top_citations = reverse_statistics_dict(pages_cited)[:3]
-	top_citations_items = itemize(top_citations)
-	content += stat_block.format(
-		"Cited the most pages:",
-		"<br>".join(top_citations_items))
-	top_cited = reverse_statistics_dict(pages_cited_by)[:3]
-	top_cited_items = itemize(top_cited)
-	content += stat_block.format(
-		"Cited by the most pages:",
-		"<br>".join(top_cited_items))
-
-	# Top article length
-	article_length_by_title = {}
-	cumulative_article_length_by_turn = {
-		turn_num: 0
-		for turn_num in range(min_turn, max_turn + 1)
-	}
-	for article_title, article in article_by_title.items():
-		format_map = {
-			"c"+str(c.id): c.text
-			for c in article.citations
-		}
-		plain_content = article.content.format(**format_map)
-		word_count = len(plain_content.split())
-		article_length_by_title[article_title] = word_count
-		for turn_num in range(min_turn, max_turn + 1):
-			if article.turn <= turn_num:
-				cumulative_article_length_by_turn[turn_num] += word_count
-	top_length = reverse_statistics_dict(article_length_by_title)[:3]
-	top_length_items = itemize(top_length)
-	content += stat_block.format(
-		"Longest articles:",
-		"<br>".join(top_length_items))
-
-	# Total word count
-	len_list = [(str(k), [str(v)]) for k,v in cumulative_article_length_by_turn.items()]
-	content += stat_block.format(
-		"Aggregate word count by turn:",
-		"<br>".join(itemize(len_list)))
-
-	# Player pageranks
-	pagerank_by_player = {player: 0 for player in players}
-	for page_title, articles in page_by_title.items():
-		page_author = articles[0].player
-		if page_author is not None:
-			pagerank_by_player[page_author] += pagerank_by_title[page_title]
-	for player, pagerank in pagerank_by_player.items():
-		pagerank_by_player[player] = round(pagerank, 3)
-	player_rank = reverse_statistics_dict(pagerank_by_player)
-	player_rank_items = itemize(player_rank)
-	content += stat_block.format(
-		"Player aggregate page rank:",
-		"<br>".join(player_rank_items))
-
-	# Player citations made
-	pages_cited_by_player = {player: 0 for player in players}
-	for article_title, article in article_by_title.items():
-		if article.player is not None:
-			pages_cited_by_player[article.player] += len(article.citations)
-	player_cites_made_ranks = reverse_statistics_dict(pages_cited_by_player)
-	player_cites_made_items = itemize(player_cites_made_ranks)
-	content += "<div class=\"contentblock\">\n"
-	content += "<u>Citations made by player:</u><br>\n"
-	content += "<br>\n".join(player_cites_made_items)
-	content += "</div>\n"
-
-	# Player cited count
-	pages_cited_by_by_player = {player: 0 for player in players}
-	for page_title, articles in page_by_title.items():
-		page_author = articles[0].player
-		if page_author is not None:
-			pages_cited_by_by_player[page_author] += len(articles[0].citedby)
-	cited_times_ranked = reverse_statistics_dict(pages_cited_by_by_player)
-	cited_times_items = itemize(cited_times_ranked)
-	content += "<div class=\"contentblock\">\n"
-	content += "<u>Citations made to article by player:</u><br>\n"
-	content += "<br>\n".join(cited_times_items)
-	content += "</div>\n"
-
-	# Lowest pagerank of written articles
-	exclude = [a.title for a in articles if a.player is None]
-	rank_by_written_only = {k:v for k,v in pagerank_by_title.items() if k not in exclude}
-	pageranks = reverse_statistics_dict(rank_by_written_only)
-	bot_ranked = list(enumerate(map(lambda x: x[1], pageranks), start=1))[-10:]
-	# Format the ranks into strings
-	bot_ranked_items = itemize(bot_ranked)
-	content += "<div class=\"contentblock\">\n"
-	content += "<u>Bottom 10 articles by pagerank:</u><br>\n"
-	content += "<br>\n".join(bot_ranked_items)
-	content += "</div>\n"
-
-	# Undercited articles
-	undercited = {
-		page_title: len(articles[0].citedby)
-		for page_title, articles in page_by_title.items()
-		if len(articles[0].citedby) < 2}
-	undercited_items = itemize(reverse_statistics_dict(undercited))
-	content += "<div class=\"contentblock\">\n"
-	content += "<u>Undercited articles:</u><br>\n"
-	content += "<br>\n".join(undercited_items)
-	content += "</div>\n"
+	# Create all the stats blocks.
+	lexicon_stats = LexiconStatistics(articles)
+	stats_blocks = []
+	for stat in stats:
+		if hasattr(lexicon_stats, stat):
+			stats_blocks.append(getattr(lexicon_stats, stat)())
+		else:
+			print("ERROR: Bad stat {}".format(stat))
+	content = "\n".join(stats_blocks)
 
 	# Fill in the entry skeleton
 	return page.format(title="Statistics", content=content)
@@ -620,7 +453,7 @@ def build_all(path_prefix, lexicon_name):
 		f.write(build_session_page(page, config["SESSION_PAGE"]))
 	print("    Wrote Session")
 	with open(pathto("statistics", "index.html"), "w", encoding="utf-8") as f:
-		f.write(build_statistics_page(page, articles))
+		f.write(build_statistics_page(config, page, articles))
 	print("    Wrote Statistics")
 
 	# Write auxiliary pages
