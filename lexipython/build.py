@@ -417,7 +417,7 @@ def build_all(path_prefix, lexicon_name):
 
 	# Write the redirect page
 	print("Writing redirect page...")
-	with open(pathto("index.html"), "w", encoding="utf8") as f:
+	with open(pathto("index.html"), "w", encoding="utf8", newline='') as f:
 		f.write(utils.load_resource("redirect.html").format(
 			lexicon=config["LEXICON_TITLE"], sort=config["DEFAULT_SORT"]))
 
@@ -430,7 +430,7 @@ def build_all(path_prefix, lexicon_name):
 	l = len(articles)
 	for idx in range(l):
 		article = articles[idx]
-		with open(pathto("article", article.title_filesafe + ".html"), "w", encoding="utf-8") as f:
+		with open(pathto("article", article.title_filesafe + ".html"), "w", encoding="utf-8", newline='') as f:
 			content = article.build_default_content()
 			article_html = page.format(
 				title = article.title,
@@ -440,29 +440,29 @@ def build_all(path_prefix, lexicon_name):
 
 	# Write default pages
 	print("Writing default pages...")
-	with open(pathto("contents", "index.html"), "w", encoding="utf-8") as f:
+	with open(pathto("contents", "index.html"), "w", encoding="utf-8", newline='') as f:
 		f.write(build_contents_page(config, page, articles))
 	print("    Wrote Contents")
-	with open(pathto("rules", "index.html"), "w", encoding="utf-8") as f:
+	with open(pathto("rules", "index.html"), "w", encoding="utf-8", newline='') as f:
 		f.write(build_rules_page(page))
 	print("    Wrote Rules")
-	with open(pathto("formatting", "index.html"), "w", encoding="utf-8") as f:
+	with open(pathto("formatting", "index.html"), "w", encoding="utf-8", newline='') as f:
 		f.write(build_formatting_page(page))
 	print("    Wrote Formatting")
-	with open(pathto("session", "index.html"), "w", encoding="utf-8") as f:
+	with open(pathto("session", "index.html"), "w", encoding="utf-8", newline='') as f:
 		f.write(build_session_page(page, config["SESSION_PAGE"]))
 	print("    Wrote Session")
-	with open(pathto("statistics", "index.html"), "w", encoding="utf-8") as f:
+	with open(pathto("statistics", "index.html"), "w", encoding="utf-8", newline='') as f:
 		f.write(build_statistics_page(config, page, articles))
 	print("    Wrote Statistics")
 
 	# Write auxiliary pages
 	if "PRINTABLE_FILE" in config and config["PRINTABLE_FILE"]:
-		with open(pathto(config["PRINTABLE_FILE"]), "w", encoding="utf-8") as f:
+		with open(pathto(config["PRINTABLE_FILE"]), "w", encoding="utf-8", newline='') as f:
 			f.write(build_compiled_page(articles, config))
 		print("    Wrote compiled page to " + config["PRINTABLE_FILE"])
 
-	with open(pathto("editor.html"), "w", encoding="utf-8") as f:
+	with open(pathto("editor.html"), "w", encoding="utf-8", newline='') as f:
 		editor = utils.load_resource("editor.html")
 		writtenArticles = ""
 		phantomArticles = ""

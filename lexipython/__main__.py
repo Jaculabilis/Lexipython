@@ -136,13 +136,13 @@ def command_init(name):
 	# Edit the name field
 	config = re.sub("Lexicon Title", "Lexicon {}".format(name), config)
 	# Create the Lexicon's config file
-	with open(os.path.join(lex_path, "lexicon.cfg"), "w") as config_file:
+	with open(os.path.join(lex_path, "lexicon.cfg"), "w", newline='') as config_file:
 		config_file.write(config)
 	# Copy the CSS file
-	with open(os.path.join(lex_path, "lexicon.css"), "w") as css_file:
+	with open(os.path.join(lex_path, "lexicon.css"), "w", newline='') as css_file:
 		css_file.write(utils.load_resource("lexicon.css"))
 	# Create an example page
-	with open(os.path.join(lex_path, "src", "example-page.txt"), "w") as destfile:
+	with open(os.path.join(lex_path, "src", "example-page.txt"), "w", newline='') as destfile:
 		destfile.write(utils.load_resource("example-page.txt"))
 	# Create an empty status file
 	open(os.path.join(lex_path, "status"), "w").close()
