@@ -19,6 +19,7 @@ def titleescape(s):
 	"""
 	s = s.strip()
 	s = re.sub(r"\s+", '_', s)  # Replace whitespace with _
+	s = re.sub(r"~", '_', s)    # parse.quote doesn't catch ~
 	s = parse.quote(s)          # Encode all other characters
 	s = re.sub(r"%", "", s)     # Strip encoding %s
 	s = s[:64]                  # Limit to 64 characters
