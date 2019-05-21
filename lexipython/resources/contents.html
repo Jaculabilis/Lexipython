@@ -1,0 +1,55 @@
+<script type="text/javascript">
+const order = {
+	INDEX: "index",
+	TURN: "turn",
+	PLAYER: "player",
+}
+var currentOrder = order.INDEX;
+setOrder = function(orderType)
+{
+	if (orderType == order.INDEX) {
+		document.getElementById("index-order").style.display = "block";
+		document.getElementById("turn-order").style.display = "none";
+		document.getElementById("player-order").style.display = "none";
+		document.getElementById("toggle-button").innerText = "Switch to turn order";
+		currentOrder = order.INDEX;
+	}
+	else if (orderType == order.TURN) {
+		document.getElementById("index-order").style.display = "none";
+		document.getElementById("turn-order").style.display = "block";
+		document.getElementById("player-order").style.display = "none";
+		document.getElementById("toggle-button").innerText = "Switch to player order";
+		currentOrder = order.TURN;
+	}
+	else if (orderType == order.PLAYER) {
+		document.getElementById("index-order").style.display = "none";
+		document.getElementById("turn-order").style.display = "none";
+		document.getElementById("player-order").style.display = "block";
+		document.getElementById("toggle-button").innerText = "Switch to index order";
+		currentOrder = order.PLAYER;
+	}
+}
+contentsToggle = function() {
+	if (currentOrder == order.INDEX)
+		setOrder(order.TURN);
+	else if (currentOrder == order.TURN)
+		setOrder(order.PLAYER);
+	else if (currentOrder == order.PLAYER)
+		setOrder(order.INDEX);
+}
+window.onload = function(){
+	if (location.search.search("byindex") > 0)
+	{
+		setOrder(order.INDEX);
+	}
+	if (location.search.search("byturn") > 0)
+	{
+		setOrder(order.TURN);
+	}
+	if (location.search.search("byplayer") > 0)
+	{
+		setOrder(order.PLAYER);
+	}
+}
+</script>
+<button id="toggle-button" onClick="javascript:contentsToggle()">Switch to turn order</button>

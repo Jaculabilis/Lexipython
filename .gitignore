@@ -102,3 +102,9 @@ ENV/
 
 # Ignore directories in lexicon/
 lexicon/*/
+
+# Ignore vscode
+.vscode
+
+# Ignore a scratch directory
+scratch/

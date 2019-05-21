@@ -1,0 +1,179 @@
+<html>
+<head>
+<title>Lexicon Editor</title>
+<style>
+	html, body { height:100%; margin:0px; }
+	div.outer { overflow:overlay; }
+	span.signature { text-align: right; }
+	a.phantom { color: #ff0000; }
+	a.denovo { color: #008800; }
+	@media only screen and (min-width: 768px) {
+		div.column { float:left; width:50%; }
+	}
+</style>
+<script>
+	writtenArticles = [
+		//writtenArticles
+	]
+	phantomArticles = [
+		//phantomArticles
+	]
+
+	function updatePreview() {
+		var articlePlayer = document.getElementById("article-player").value;
+		var articleTitle = document.getElementById("article-title").value;
+		var articleBody = document.getElementById("article-body").value;
+		var previewHtml = "<h1>" + articleTitle + "</h1>\n";
+		if (phantomArticles.some(e => (e.title === articleTitle && e.citedby.some(p => (p === articlePlayer))))) {
+			previewHtml += "<p><span style=\"color:#dd0000\">You've cited this article!</span></p>"
+		}
+		previewHtml += parseLexipythonMarkdown(articleBody);
+		document.getElementById("preview").innerHTML = previewHtml;
+	}
+
+	function parseLexipythonMarkdown(text) {
+		// Parse the content and extract citations
+		var paras = text.trim().split(/\n\n+/);
+		content = "";
+		citationList = [];
+		formatId = 1;
+		hasSignature = false;
+		for (var i = 0; i < paras.length; i++) {
+			var para = paras[i];
+			// Escape angle brackets
+			para = para.replace(/</g, "&lt;");
+			para = para.replace(/>/g, "&gt;");
+			// Replace bold and italic marks with tags
+			para = para.replace(/\/\/([^\/]+)\/\//g, "<i>$1</i>");
+			para = para.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+			// Replace \\LF with <br>LF
+			para = para.replace(/\\\\\n/g, "<br>\n");
+			// Abstract citations into the citation record
+			linkMatch = para.match(/\[\[(([^|\[\]]+)\|)?([^|\[\]]+)\]\]/);
+			while (linkMatch != null) {
+				// Identify the citation text and cited article
+				citeText = linkMatch[2] != null ? linkMatch[2] : linkMatch[3];
+				citeTitle = linkMatch[3].charAt(0).toUpperCase() + linkMatch[3].slice(1);
+				citeClass = "class=\"denovo\"";
+				if (writtenArticles.some(function(e) { return e.title === citeTitle; })) {
+					citeClass = ""
+				} else if (phantomArticles.some(function(e) { return e.title === citeTitle; })) {
+					citeClass = "class=\"phantom\"";
+				}
+				// Record the citation
+				citationList.push([formatId, citeTitle]);
+				// Stitch the cite text in place of the citation, plus a cite number
+				para =
+					para.slice(0, linkMatch.index) +
+					"<a " +
+					citeClass +
+					" href=\"#\">" +
+					citeText +
+					"</a>" +
+					"<sup>" +
+					formatId.toString() +
+					"</sup>" +
+					para.slice(linkMatch.index + linkMatch[0].length);
+				formatId += 1; // Increment to the next format id
+				linkMatch = para.match(/\[\[(([^|\[\]]+)\|)?([^|\[\]]+)\]\]/);
+			}
+			// Convert signature to right-aligned
+			if (para.length > 0 && para[0] == "~") {
+				para = "<hr><span class=\"signature\"><p>" + para.slice(1) + "</p></span>";
+				hasSignature = true;
+			} else {
+				para = "<p>" + para + "</p>\n";
+			}
+			content += para;
+		}
+		if (!hasSignature) {
+			content += "<p><span style=\"color:#dd0000\">Article has no signature</span></p>";
+		}
+		if (citationList.length > 0) {
+			var player = document.getElementById("article-player").value;
+			content += "<p><i>The following articles will be cited:</i></p>\n";
+			for (var i = 0; i < citationList.length; i++) {
+				citation = citationList[i][0].toString() + ". " + citationList[i][1];
+				if (writtenArticles.some(e => (e.title === citationList[i][1]) && (e.author === player))) {
+					content += "<p><span style=\"color:#ff0000\">" + citation + " [Written by you!]</span></p>";
+				} else if (writtenArticles.some(e => (e.title === citationList[i][1]))) {
+					content += "<p>" + citation + " [Written]";
+				} else if (phantomArticles.some(e => (e.title === citationList[i][1]))) {
+					content += "<p>" + citation + " [Phantom]";
+				} else {
+					content += "<p>" + citation + " [New]";
+				}
+				content += "</p>\n";
+			}
+		}
+		// Calculate approximate word count
+		var wordCount = text.trim().split(/\s+/).length;
+		if (text.trim().length < 1)
+			wordCount = 0;
+		content += "<p><i>Article length: approx. " + wordCount + " words</p>";
+
+		return content;
+	}
+
+	function download() {
+		var articlePlayer = document.getElementById("article-player").value;
+		var articleTurn = document.getElementById("article-turn").value;
+		var articleTitle = document.getElementById("article-title").value;
+		var articleBody = document.getElementById("article-body").value;
+		var articleText =
+			"# Player: " + articlePlayer + "\n" +
+			"# Turn: " + articleTurn + "\n" +
+			"# Title: " + articleTitle + "\n" +
+			"\n" +
+			articleBody;
+		var articleFilename = articleTitle.toLowerCase().replace(/[^a-z0-9- ]/g, "").replace(/ +/g, "-");
+		articleFilename += "-" + articleTurn.toString();
+		var downloader = document.createElement("a");
+		downloader.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(articleText));
+		downloader.setAttribute("download", articleFilename);
+		if (document.createEvent) {
+			var event = document.createEvent("MouseEvents");
+			event.initEvent("click", true, true);
+			downloader.dispatchEvent(event);
+		} else {
+			downloader.click();
+		}
+	}
+
+	window.onload = updatePreview;
+
+	window.addEventListener("beforeunload", function(e) {
+		var hasText = document.getElementById("article-body").value.length > 0;
+		if (hasText) {
+			e.returnValue = "Are you sure?";
+		}
+	});
+</script>
+</head>
+<body>
+<center>
+<h1>Lexicon Editor</h1>
+</center>
+<button onclick="download()">Download as .txt</button>
+<div class="outer">
+	<div class="column">
+		<table style="width:100%">
+		<tr><td># Player:</td>
+		<td><input id="article-player" style="width:100%;" value="PN" oninput="updatePreview()"/></td>
+		</tr>
+		<tr><td># Turn:</td>
+		<td><input id="article-turn" style="width:100%" value="TURNNUMBER"/></td>
+		</tr>
+		<tr><td># Title:</td>
+		<td><input id="article-title" style="width:100%" value="Example Page" oninput="updatePreview()" /></td>
+		</tr>
+		<tr><td colspan="2">
+		<textarea id="article-body" style="width:100%; resize:vertical" rows=8 oninput="updatePreview()"></textarea>
+		</td></tr></table>
+	</div>
+	<div class="column">
+		<div id="preview" style="padding: 0 10px"></div>
+	</div>
+</div>
+</body>
+</html>
