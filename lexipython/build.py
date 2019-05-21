@@ -426,7 +426,7 @@ def build_all(path_prefix, lexicon_name):
 	print("Writing redirect page...")
 	with open(pathto("index.html"), "w", encoding="utf8", newline='') as f:
 		f.write(utils.load_resource("redirect.html").format(
-			lexicon=config["LEXICON_TITLE"], sort=config["DEFAULT_SORT"]))
+			lexicon=config["LEXICON_TITLE"], sort=parse_sort_type(config["DEFAULT_SORT"])))
 
 	# Write the article pages
 	print("Deleting old article pages...")
@@ -464,10 +464,10 @@ def build_all(path_prefix, lexicon_name):
 	print("    Wrote Statistics")
 
 	# Write auxiliary pages
-	if "PRINTABLE_FILE" in config and config["PRINTABLE_FILE"]:
-		with open(pathto(config["PRINTABLE_FILE"]), "w", encoding="utf-8", newline='') as f:
+	if "SEARCHABLE_FILE" in config and config["SEARCHABLE_FILE"]:
+		with open(pathto(config["SEARCHABLE_FILE"]), "w", encoding="utf-8", newline='') as f:
 			f.write(build_compiled_page(articles, config))
-		print("    Wrote compiled page to " + config["PRINTABLE_FILE"])
+		print("    Wrote compiled page to " + config["SEARCHABLE_FILE"])
 
 	with open(pathto("editor.html"), "w", encoding="utf-8", newline='') as f:
 		editor = utils.load_resource("editor.html")
