@@ -416,7 +416,7 @@ def build_all(path_prefix, lexicon_name):
 	# Once they've been populated, the articles list has the titles of all articles
 	# Sort this by turn before title so prev/next links run in turn order
 	articles = sorted(
-		LexiconArticle.interlink(articles),
+		LexiconArticle.interlink(articles, config),
 		key=lambda a: (a.turn, utils.titlesort(a.title)))
 
 	def pathto(*els):

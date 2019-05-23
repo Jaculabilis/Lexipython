@@ -8,11 +8,11 @@ In Lexicon, each player takes on the role of a scholar. You are cranky, opiniona
 
 ## Basic Rules: What Everyone Should Know
 
-1. Each Lexicon has a _topic statement_ that sets the tone for the game. It provides a starting point for shaping the developing world of the Lexicon. As it is a starting point, don't feel contrained to write only about the topics mentioned directly in it.
+1. Each Lexicon has a **topic statement** that sets the tone for the game. It provides a starting point for shaping the developing world of the Lexicon. As it is a starting point, don't feel contrained to write only about the topics mentioned directly in it.
 
-1. Articles are sorted under an _index_, a grouping of letters. An article is in an index if its first letter is in that group of letters. "The", "A", and "An" aren't counted in indexing.  _Example: One of the indices is JKL. An article titled 'The Jabberwock' would index under JKL, not T's index._
+1. Articles are sorted under an **index**, a grouping of letters. An article is in an index if its first letter is in that group of letters. "The", "A", and "An" aren't counted in indexing.  _Example: Two indices are JKL and TUV. An article titled 'The Jabberwock' would index under JKL, not TUV._
 
-    1. Until the game is over, some of the articles will have been cited, but not yet written. These are called _phantom_ articles. A phantom article has a title, which is defined by the first citation to it, but no content.
+    1. Until the game is over, some of the articles will have been cited, but not yet written. These are called **phantom articles**. A phantom article has a title, which is defined by the first citation to it, but no content.
 
     1. Generally, an index has a number of "slots" equal to the number of players. When an article is first written or cited, it takes up one slot in its corresponding index.
 
@@ -26,7 +26,9 @@ In Lexicon, each player takes on the role of a scholar. You are cranky, opiniona
 
     1. There are no hard and fast rules about length, but it is recommended that the Editor enforce a maximum word limit. In general, aiming for 200-300 words is ideal.
 
-    1. You must respect and not contradict the factual content of all written articles. You may introduce new facts that put things in a new light, provide alternative interpretations, or flesh out unexplained details in unexpected ways; but you must not _contradict_ what has been previously established as fact. Use the "yes, and" rule from improv acting: accept what your fellow scholars have written and add to it in new ways, rather than trying to undo their work. This rule includes facts that have been established in written articles about the topics of phantom articles.
+    1. You must respect and not contradict the factual content of all written articles. You may introduce new facts that put things in a new light, provide alternative interpretations, or flesh out unexplained details in unexpected ways; but you must not _contradict_ what has been previously established as fact. Use the "yes, and" rule from improv acting: accept what your fellow scholars have written and add to it in new ways, rather than trying to undo their work.
+
+        1. This rule includes facts that have been established in other, written articles about the topics of phantom articles. When you set out to write a phantom article, be sure to check what's been said about the topic already. Lexipython will list the articles that have cited your article.
 
 1. Each article will cite other articles in the Lexicon.
 
@@ -34,15 +36,17 @@ In Lexicon, each player takes on the role of a scholar. You are cranky, opiniona
 
     1. As a corollary, you may not write phantom articles that you have cited. If you cite an article and then write it later, your former article now cites you, which is forbidden per the above.
 
-    1. On the first turn, there are no written articles. Your first article must cite _exactly two_ phantom articles.
+    1. On the first turn, there are no written articles. Your first article must cite **exactly two** phantom articles.
 
-    1. On subsequent turns, your article must cite _exactly two_ phantoms, but you can cite phantoms that already exist. Your article must also cite _at least one_ written article. You can cite more than one.
+    1. On subsequent turns, your article must cite **exactly two** phantoms, but you can cite phantoms that already exist. Your article must also cite **at least one** written article. You can cite more than one.
 
-    1. On the penultimate turn, you must cite _exactly one_ phantom article and _at least two_ written articles.
+    1. On the penultimate turn, you must cite **exactly one** phantom article and **at least two** written articles.
 
-    1. On the final turn, you must cite _at least three_ written articles.
+    1. On the final turn, you must cite **at least three** written articles.
 
 1. As the game goes on, it may come to pass that a player must write an article in an index, but that index is full, and that player has already cited all the phantoms in it. When this happens, the player instead writes their article as **Ersatz Scrivener**, radical skeptic. Ersatz does not believe in the existence of whatever he is writing about, no matter how obvious it seems to others or how central it is in the developing history of the world. For Ersatz, all references, testimony, etc. with regard to its existence are tragic delusion at best or malicious lies at worst. Unlike the other scholars, Ersatz does not treat the research of his peers as fact, because he does not believe he has peers. Players writing articles as Ersatz are encouraged to lambast the amateur work of his misguided "collaborators".
+
+1. Finally, the rules are always subject to the discretion of the Editor.
 
 ## Procedural Rules: Running the Game
 
@@ -60,7 +64,7 @@ The player running the game is the Editor. The Editor should handle the followin
 
 * **Topic statement.** The topic statement should be vague, but give the players some hooks to begin writing. Examples: "You are all revisionist scholars from the Paleotechnic Era arguing about how the Void Ghost Rebellion led to the overthrow of the cyber-gnostic theocracy and the establishment of the Third Republic"; "In the wake of the Quartile Reformation, you are scholars investigating the influence of Remigrationism on the Disquietists". What happened to the first two Republics or what Remigrationism is are left open for the players to determine.
 
-* **Indices and turns.** In general, the Editor will decide on a number of turns and divide the alphabet into that many indices. Each player then takes one turn in each index. A game of 6 or 8 turns is suggested. _Example: An 8-turn game over the indices ABC/DEF/GHI/JKL/MNO/PQRS/TUV/QXYZ._ The Editor should determine how much time the players can devote to playing Lexicon and set a time limit on turns accordingly.
+* **Indices and turns.** In general, the Editor will decide on a number of turns and divide the alphabet into that many indices. Each player then takes one turn in each index. A game of 6 or 8 turns is suggested. _Example: An 8-turn game over the indices ABC/DEF/GHI/JKL/MNO/PQRS/TUV/WXYZ._ The Editor should determine how much time the players can devote to playing Lexicon and set a time limit on turns accordingly.
 
 * **Index assignments.** Each turn, the Editor should assign each player to an index. Unless players have a method of coordinating who is writing what article, it is suggested that the Editor always assign players to write in different indices. The easiest way to do this is to distribute players randomly across the indices for the first turn, then move them through the indices in order, wrapping around to the top from the bottom.
 
@@ -74,7 +78,7 @@ How the game develops is entirely up to the players, and your group may have a d
 
 * Even if articles don't get too long, having too many articles on one subject can lead to the same problem of writing on the topic becoming too hard to do consistently. Avoid having multiple articles about the same thing, and avoid having too many articles about different facets of one particular element of the world.
 
-* Encyclopedias are written about things in the past. Players may, of course, want to mention how something in the past still affects the world in the present day. However, if players begin to write about purely contemporary things or events, the Lexicon shifts from an _encyclopedic_ work to a _narrative_ one. If that's what you want out of the game, go ahead and do so, but writing about an ongoing narrative insead of settled history introduce the additional complication of keeping abreast of the current state of the plot. It is more difficult for players to avoid contradiction when the facts are changing as they write.
+* Encyclopedias are written about things in the past. Players may, of course, want to mention how something in the past still affects the world in the present day. However, if players begin to write about purely contemporary things or events, the Lexicon shifts from an _encyclopedic_ work to a _narrative_ one. If that's what you want out of the game, go ahead and do so, but writing about an ongoing narrative insead of settled history introduces the additional complication of keeping abreast of the current state of the plot. It is more difficult for players to avoid contradiction when the facts are changing as they write.
 
 * Articles whose titles do not begin with a character in any index pattern are sorted to the "&c" index. This usually includes numbers and symbols. If the Editor wants to make purposive use of this, they can assign players to it as an index.
 
@@ -82,7 +86,9 @@ How the game develops is entirely up to the players, and your group may have a d
 
 The Editor is always free to alter the game procedures when it would make for a better game. The following are some known rule variations:
 
-* **Follow the Phantoms:** Players make two phantom citations on the first turn. On subsequent turns, rather than choosing from phantoms and open slots in an assigned index, players must write an existing phantom. Until all slots are full, players must make one of their phantom citations to a new phantom article and one to an existing phantom.
+* **Follow the Phantoms:** Players make phantom citations as normal on the first turn. On subsequent turns, rather than choosing from phantoms and open slots in an assigned index, players must write an existing phantom. Until all slots are full, players must make one of their phantom citations to a new phantom article and one to an existing phantom.
+
+* **Addendums:** In addition to writing new and phantom articles, players can write articles with the same title as an already-written article. The content of these "addendum" articles is added as a postscript at the bottom of the first article written under that title. Addendums can legally cite what their author can cite, not what the main article's author can cite.
 
 * Occasionally, if more players make a citation to an index than there are open slots, the index will be over capacity. If the Editor is assigning players to indices in order, the Editor may need to shift players' index assignments around. This may also be useful for decreasing the number of Ersatz articles, if a player can't write in their assigned index but could write in another.
 

@@ -167,7 +167,7 @@ class LexiconArticle:
 		return articles
 
 	@staticmethod
-	def interlink(lexicon_articles):
+	def interlink(lexicon_articles, config):
 		"""
 		Fills out fields on articles that require other articles for context.
 		Creates phantom articles.
@@ -175,10 +175,17 @@ class LexiconArticle:
 		# Preliminary assertion that title/turn is unique
 		keys = set()
 		for article in lexicon_articles:
-			if (article.title, article.turn) in keys:
-				raise ValueError("Found two articles with title '{}' and turn '{}'".format(
-					article.title, article.turn))
-			keys.add((article.title, article.turn))
+			if config['ALLOW_ADDENDA'].lower() == "true":
+				key = (article.title, article.turn)
+				if key in keys:
+					raise ValueError("Found two articles with title '{}' and turn '{}'".format(
+						*key))
+			else:
+				key = article.title
+				if key in keys:
+					raise ValueError("Found two articles with title '{}'".format(
+						article.title))
+			keys.add(key)
 		# Sort out which articles are addendums and which titles are phantoms
 		written_titles = set()
 		cited_titles = set()
