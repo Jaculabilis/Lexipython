@@ -126,7 +126,7 @@ class LexiconArticle:
 			while link_match:
 				# Identify the citation text and cited article
 				cite_text = link_match.group(2) if link_match.group(2) else link_match.group(3)
-				cite_title = utils.titlecase(re.sub(r"\s+", " ", link_match.group(3)))
+				cite_title = utils.titlecase(link_match.group(3).strip())
 				# Record the citation
 				cite = LexiconCitation(format_id, cite_text, cite_title)
 				citations.append(cite)
